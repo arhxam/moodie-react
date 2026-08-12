@@ -15,7 +15,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --pretty false"
+    "typecheck": "npm run build --workspace @moodie/react && tsc -b --pretty false"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
