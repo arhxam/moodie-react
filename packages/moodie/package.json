@@ -39,5 +39,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/arhxam/custom-icon.git"
+  },
+  "homepage": "https://moodie-react.vercel.app",
+  "bugs": {
+    "url": "https://github.com/arhxam/custom-icon/issues"
   }
 }

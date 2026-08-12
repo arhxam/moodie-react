@@ -4,6 +4,8 @@ Give your interface a little life.
 
 Moodie is a small, deeply configurable animated face for React. It renders topology-compatible SVG paths and animates them with spring physics, so expression changes feel fluid without canvas, image assets, or a timeline editor.
 
+**[Open the live playground](https://moodie-react.vercel.app)** · **[Read the LLM guide](docs/llm-guide.md)**
+
 ```bash
 npm install @moodie/react motion
 ```
