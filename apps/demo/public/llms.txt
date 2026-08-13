@@ -10,7 +10,7 @@ Minimal usage:
 
 ```tsx
 import { Moodie } from "@moodie/react";
-<Moodie expression="happy" color="#5b6cff" />;
+<Moodie expression="happy" color="#dfff5b" />;
 ```
 
 Built-in expressions: neutral, happy, excited, sleepy, sad, worried, thinking, love, curious, surprised, focused, cheeky, dizzy, calm, wink, alert.

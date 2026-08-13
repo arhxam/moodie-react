@@ -100,8 +100,8 @@ export type MoodieConfig = {
 export const DEFAULT_CONFIG: MoodieConfig = {
   expression: "neutral",
   shape: "circle",
-  color: "#5b6cff",
-  eyeColor: "#0a0a0a",
+  color: "#dfff5b",
+  eyeColor: "#151515",
   size: 240,
   spring: { stiffness: 210, damping: 22, mass: 0.8 },
   blink: { enabled: true, interval: [2600, 6200], duration: 150 },

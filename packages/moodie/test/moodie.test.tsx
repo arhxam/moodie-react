@@ -44,6 +44,46 @@ describe("Moodie", () => {
     );
   });
 
+  it("animates palette changes instead of snapping their SVG fills", () => {
+    const { rerender } = render(
+      <Moodie
+        color="#dfff5b"
+        eyeColor="#151515"
+        motion="tween"
+        eyeMotion={false}
+        blink={false}
+      />,
+    );
+    const face = screen.getByRole("img");
+    const body = face.querySelector("[data-part='body']");
+    const leftEye = face.querySelector("[data-part='left-eye']");
+    const rightEye = face.querySelector("[data-part='right-eye']");
+
+    expect(body).toHaveStyle(
+      "transition: fill 480ms cubic-bezier(0.22, 1, 0.36, 1)",
+    );
+    expect(leftEye).toHaveStyle(
+      "transition: fill 360ms cubic-bezier(0.22, 1, 0.36, 1)",
+    );
+    expect(rightEye).toHaveStyle(
+      "transition: fill 360ms cubic-bezier(0.22, 1, 0.36, 1)",
+    );
+
+    rerender(
+      <Moodie
+        color="#ff735c"
+        eyeColor="#271116"
+        motion="tween"
+        eyeMotion={false}
+        blink={false}
+      />,
+    );
+
+    expect(body).toHaveAttribute("fill", "#ff735c");
+    expect(leftEye).toHaveAttribute("fill", "#271116");
+    expect(rightEye).toHaveAttribute("fill", "#271116");
+  });
+
   it("cycles expressions on click while uncontrolled", () => {
     const onExpressionChange = vi.fn();
     render(

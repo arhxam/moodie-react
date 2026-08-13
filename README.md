@@ -22,7 +22,7 @@ export function LoadingState() {
   return (
     <Moodie
       expression="curious"
-      color="#5b6cff"
+      color="#dfff5b"
       shape="blob"
       pointer
       blink
@@ -70,6 +70,12 @@ npm run dev
 ```
 
 The demo opens at `http://localhost:5173` by default.
+
+## Playground showcase
+
+The website opens with an authored showcase built entirely from Moodie's public controlled props. It cycles through gaze, expressions, shapes, palettes, eye geometry, and secondary performances; entering the canvas or changing a control pauses the sequence so direct interaction stays in charge. **Close demo** stops the director for the current page session and leaves the full inspector in manual mode.
+
+This choreography belongs to the demo, not the package runtime. A standalone `<Moodie />` remains predictable: opt into the built-in `auto`, `eyeMotion`, controlled `gaze`, or imperative APIs in the combinations your product needs.
 
 ## Core API
 
@@ -131,7 +137,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.4.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.5.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 

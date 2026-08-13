@@ -13,6 +13,8 @@ import {
 describe("playground exporters", () => {
   it("starts the preset rail with excited and leaves curious until last", () => {
     expect(INITIAL_CONFIG.expression).toBe("excited");
+    expect(INITIAL_CONFIG.color).toBe("#dfff5b");
+    expect(INITIAL_CONFIG.eyeColor).toBe("#151515");
     expect(DISPLAY_EXPRESSIONS[0]).toBe("excited");
     expect(DISPLAY_EXPRESSIONS.at(-1)).toBe("curious");
   });

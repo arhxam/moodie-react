@@ -55,8 +55,8 @@ export type PlaygroundConfig = {
 export const INITIAL_CONFIG: PlaygroundConfig = {
   expression: "excited",
   shape: "circle",
-  color: "#5b6cff",
-  eyeColor: "#0a0a0a",
+  color: "#dfff5b",
+  eyeColor: "#151515",
   motion: "spring",
   stiffness: 210,
   damping: 22,
