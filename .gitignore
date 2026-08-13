@@ -1,0 +1,9 @@
+node_modules
+dist
+.DS_Store
+*.local
+*.log
+.vercel
+coverage
+*.tsbuildinfo
+apps/demo/public/llms-full.txt

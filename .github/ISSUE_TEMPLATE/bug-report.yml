@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a reproducible problem with the package or demo.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include expected and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Share a minimal repository, sandbox, or exact steps.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Version
+      placeholder: 0.1.0
+    validations:
+      required: true

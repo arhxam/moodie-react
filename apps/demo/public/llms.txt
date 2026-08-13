@@ -1,0 +1,31 @@
+# Moodie
+
+> A tiny, deeply configurable animated SVG face for React.
+
+Install: npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion
+Repository: https://github.com/arhxam/moodie-react
+License: MIT
+
+Minimal usage:
+
+```tsx
+import { Moodie } from "@moodie/react";
+<Moodie expression="happy" color="#5b6cff" />;
+```
+
+Built-in expressions: neutral, happy, excited, sleepy, sad, worried, thinking, love, curious, surprised, focused, cheeky, dizzy, calm, wink, alert.
+
+Shapes: circle, squircle, blob, pebble, diamond.
+
+Expression changes automatically combine a body reaction and an expression-specific eye performance. Configure this with expressionMotion or disable it with expressionMotion={false}.
+
+Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
+
+Controlled interaction:
+
+```tsx
+const [expression, setExpression] = useState("curious");
+<Moodie expression={expression} onExpressionChange={setExpression} clickAction="random" />;
+```
+
+See the repository's docs/llm-guide.md for the complete model, accessibility rules, custom geometry, and framework notes.
