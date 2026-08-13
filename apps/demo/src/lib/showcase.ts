@@ -26,7 +26,7 @@ export const SHOWCASE_STEPS = [
     eyeScale: 1,
     eyeDistance: 1,
     cue: "notice",
-    hold: 1900,
+    hold: 12_000,
   },
   {
     expression: "cheeky",

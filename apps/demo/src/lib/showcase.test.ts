@@ -36,6 +36,7 @@ describe("playground showcase", () => {
       eyeScale: SHOWCASE_STEPS[0].eyeScale,
       eyeDistance: SHOWCASE_STEPS[0].eyeDistance,
     });
+    expect(SHOWCASE_STEPS[0].hold).toBeGreaterThanOrEqual(10_000);
   });
 
   it("keeps every authored value inside the public API bounds", () => {
@@ -49,7 +50,9 @@ describe("playground showcase", () => {
       expect(step.eyeDistance).toBeGreaterThanOrEqual(0.75);
       expect(step.eyeDistance).toBeLessThanOrEqual(1.25);
       expect(step.hold).toBeGreaterThanOrEqual(1400);
-      expect(step.hold).toBeLessThanOrEqual(2600);
+      expect(step.hold).toBeLessThanOrEqual(
+        step === SHOWCASE_STEPS[0] ? 15_000 : 2600,
+      );
       expect(contrast(step.eyeColor, step.color)).toBeGreaterThanOrEqual(4.5);
     }
   });
