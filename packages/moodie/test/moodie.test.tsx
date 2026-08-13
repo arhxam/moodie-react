@@ -116,6 +116,30 @@ describe("Moodie", () => {
     expect(screen.getByRole("img")).toHaveAttribute("data-gaze-y", "0");
   });
 
+  it("renders cursor movement in dedicated configurable layers", () => {
+    render(
+      <Moodie
+        pointer={{
+          enabled: true,
+          strength: 1.5,
+          rangeX: 24,
+          rangeY: 16,
+          tilt: 5,
+        }}
+        blink={false}
+      />,
+    );
+
+    const face = screen.getByRole("img");
+    expect(face).toHaveAttribute("data-pointer-strength", "1.5");
+    expect(face).toHaveAttribute("data-pointer-range-x", "24");
+    expect(face).toHaveAttribute("data-pointer-range-y", "16");
+    expect(face).toHaveAttribute("data-pointer-tilt", "5");
+    expect(
+      face.querySelector("[data-part='pointer-performance']"),
+    ).not.toBeNull();
+  });
+
   it("exposes its reduced-motion decision", () => {
     render(<Moodie reducedMotion="always" blink auto />);
 

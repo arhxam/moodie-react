@@ -241,6 +241,62 @@ export function ConfigInspector({
             aria-label="Pointer tracking"
           />
         </ControlRow>
+        <ControlRow
+          label="Cursor sensitivity"
+          value={`${config.pointerStrength.toFixed(2)}×`}
+          vertical
+        >
+          <Slider
+            aria-label="Cursor sensitivity"
+            min={0}
+            max={3}
+            step={0.05}
+            value={[config.pointerStrength]}
+            onValueChange={([value]) => update("pointerStrength", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Horizontal travel"
+          value={`${config.pointerRangeX.toFixed(0)}u`}
+          vertical
+        >
+          <Slider
+            aria-label="Horizontal cursor travel"
+            min={0}
+            max={30}
+            step={1}
+            value={[config.pointerRangeX]}
+            onValueChange={([value]) => update("pointerRangeX", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Vertical travel"
+          value={`${config.pointerRangeY.toFixed(0)}u`}
+          vertical
+        >
+          <Slider
+            aria-label="Vertical cursor travel"
+            min={0}
+            max={24}
+            step={1}
+            value={[config.pointerRangeY]}
+            onValueChange={([value]) => update("pointerRangeY", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Cursor tilt"
+          value={`${config.pointerTilt.toFixed(1)}°`}
+          vertical
+        >
+          <Slider
+            aria-label="Cursor tilt"
+            min={0}
+            max={10}
+            step={0.5}
+            value={[config.pointerTilt]}
+            onValueChange={([value]) => update("pointerTilt", value)}
+          />
+        </ControlRow>
         <ControlRow label="Auto blink">
           <Switch
             checked={config.blink}

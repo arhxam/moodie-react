@@ -15,6 +15,9 @@ describe("playground exporters", () => {
     expect(code).toContain('color="#ff3366"');
     expect(code).toContain("enabled: false");
     expect(code).toContain(
+      "pointer={{ enabled: false, strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }}",
+    );
+    expect(code).toContain(
       "expressionMotion={{ intensity: 1.35, duration: 620, eyes: true, body: true }}",
     );
   });
@@ -25,7 +28,13 @@ describe("playground exporters", () => {
 
     expect(parsed.spring).toEqual({ stiffness: 210, damping: 22, mass: 0.8 });
     expect(parsed).not.toHaveProperty("stiffness");
-    expect(parsed.pointer).toEqual({ enabled: true, strength: 1 });
+    expect(parsed.pointer).toEqual({
+      enabled: true,
+      strength: 1.35,
+      rangeX: 18,
+      rangeY: 12,
+      tilt: 3,
+    });
     expect(parsed.expressionMotion).toEqual({
       intensity: 1.35,
       duration: 620,

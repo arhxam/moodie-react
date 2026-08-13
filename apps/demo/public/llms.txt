@@ -2,8 +2,8 @@
 
 > A tiny, deeply configurable animated SVG face for React.
 
-Install: npm install @moodie/react motion
-Repository: https://github.com/arhxam/custom-icon
+Install: npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion
+Repository: https://github.com/arhxam/moodie-react
 License: MIT
 
 Minimal usage:

@@ -5,7 +5,7 @@ A tiny animated face with a surprisingly deep configuration surface.
 ## Install
 
 ```bash
-npm install @moodie/react motion
+npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion
 ```
 
 React 18 and 19 are supported through peer dependencies.
@@ -46,8 +46,14 @@ Or uncontrolled mode:
 
 ```tsx
 <Moodie
-  pointer={{ enabled: true, strength: 0.8 }}
-  gazeLimit={1.2}
+  pointer={{
+    enabled: true,
+    strength: 1.35,
+    rangeX: 18,
+    rangeY: 12,
+    tilt: 3,
+  }}
+  gazeLimit={1}
   blink={{ enabled: true, interval: [2200, 5600], duration: 140 }}
   auto={{
     enabled: true,
@@ -58,6 +64,8 @@ Or uncontrolled mode:
 ```
 
 Boolean shorthands work for `pointer`, `blink`, and `auto`.
+
+`strength` controls how quickly gaze reaches its limit. `rangeX` and `rangeY` control eye travel in view-box units, while `tilt` adds a small directional lean to the face. Multiply the entire range with `gazeLimit` when one high-level control is preferable.
 
 ## Motion
 

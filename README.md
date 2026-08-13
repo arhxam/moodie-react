@@ -1,13 +1,18 @@
 # Moodie
 
+[![CI](https://github.com/arhxam/moodie-react/actions/workflows/ci.yml/badge.svg)](https://github.com/arhxam/moodie-react/actions/workflows/ci.yml)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-black.svg)](LICENSE)
+
 Give your interface a little life.
 
 Moodie is a small, deeply configurable animated face for React. It renders topology-compatible SVG paths and animates them with spring physics, so expression changes feel fluid without canvas, image assets, or a timeline editor.
 
 **[Open the live playground](https://moodie-react.vercel.app)** · **[Read the LLM guide](docs/llm-guide.md)**
 
+Install the package directly from the latest GitHub release:
+
 ```bash
-npm install @moodie/react motion
+npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion
 ```
 
 ```tsx
@@ -33,6 +38,7 @@ export function LoadingState() {
 - Automatic squash, rebound, and expression-specific eye performances
 - Five body shapes and fully configurable CSS colors
 - Pointer-following gaze, automatic blinking, and expression cycling
+- Configurable cursor sensitivity, horizontal/vertical travel, and face tilt
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
 - Controlled or uncontrolled React state
 - Custom expressions built from normalized eye geometry
@@ -73,7 +79,7 @@ The demo opens at `http://localhost:5173` by default.
   motion="spring"
   spring={{ stiffness: 210, damping: 22, mass: 0.8 }}
   expressionMotion={{ intensity: 1.35, duration: 620 }}
-  pointer={{ enabled: true, strength: 1 }}
+  pointer={{ enabled: true, strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }}
   blink={{ enabled: true, interval: [2600, 6200], duration: 150 }}
   auto={{ enabled: false, expressions: ["neutral", "thinking"] }}
   eyeScale={1}
@@ -88,6 +94,8 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 ## Status
 
 Moodie is at `0.1.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+
+The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 
 ## License
 

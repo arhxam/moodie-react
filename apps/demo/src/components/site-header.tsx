@@ -38,7 +38,7 @@ export function SiteHeader() {
         <div className="header-actions">
           <Button variant="ghost" size="sm" asChild className="github-button">
             <a
-              href="https://github.com/arhxam/custom-icon"
+              href="https://github.com/arhxam/moodie-react"
               target="_blank"
               rel="noreferrer"
             >
@@ -72,7 +72,7 @@ export function SiteHeader() {
                 ))}
                 <SheetClose asChild>
                   <a
-                    href="https://github.com/arhxam/custom-icon"
+                    href="https://github.com/arhxam/moodie-react"
                     target="_blank"
                     rel="noreferrer"
                   >

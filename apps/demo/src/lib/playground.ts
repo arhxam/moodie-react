@@ -18,6 +18,10 @@ export type PlaygroundConfig = {
   eyePerformance: boolean;
   bodyPerformance: boolean;
   pointer: boolean;
+  pointerStrength: number;
+  pointerRangeX: number;
+  pointerRangeY: number;
+  pointerTilt: number;
   blink: boolean;
   auto: boolean;
 };
@@ -40,6 +44,10 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   eyePerformance: true,
   bodyPerformance: true,
   pointer: true,
+  pointerStrength: 1.35,
+  pointerRangeX: 18,
+  pointerRangeY: 12,
+  pointerTilt: 3,
   blink: true,
   auto: false,
 };
@@ -90,7 +98,7 @@ export function StatusFace() {
       size={${config.size}}
       motion="${config.motion}"
       spring={{ stiffness: ${config.stiffness}, damping: ${config.damping}, mass: ${config.mass} }}
-      pointer={{ enabled: ${config.pointer}, strength: 1 }}
+      pointer={{ enabled: ${config.pointer}, strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
       blink={${config.blink}}
       auto={${config.auto}}
       eyeScale={${formatNumber(config.eyeScale)}}
@@ -109,6 +117,10 @@ export function createJson(config: PlaygroundConfig) {
     damping,
     mass,
     pointer,
+    pointerStrength,
+    pointerRangeX,
+    pointerRangeY,
+    pointerTilt,
     blink,
     auto,
     expressiveness,
@@ -121,7 +133,13 @@ export function createJson(config: PlaygroundConfig) {
     {
       ...visual,
       spring: { stiffness, damping, mass },
-      pointer: { enabled: pointer, strength: 1 },
+      pointer: {
+        enabled: pointer,
+        strength: pointerStrength,
+        rangeX: pointerRangeX,
+        rangeY: pointerRangeY,
+        tilt: pointerTilt,
+      },
       blink: { enabled: blink },
       auto: { enabled: auto },
       expressionMotion: {

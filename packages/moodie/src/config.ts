@@ -20,6 +20,9 @@ export type BlinkConfig = {
 export type PointerConfig = {
   enabled: boolean;
   strength: number;
+  rangeX: number;
+  rangeY: number;
+  tilt: number;
 };
 
 export type AutoConfig = {
@@ -49,7 +52,13 @@ export const DEFAULT_CONFIG: MoodieConfig = {
   size: 240,
   spring: { stiffness: 210, damping: 22, mass: 0.8 },
   blink: { enabled: true, interval: [2600, 6200], duration: 150 },
-  pointer: { enabled: true, strength: 1 },
+  pointer: {
+    enabled: true,
+    strength: 1.35,
+    rangeX: 18,
+    rangeY: 12,
+    tilt: 3,
+  },
   auto: { enabled: false, interval: [2400, 5200] },
   expressionMotion: { ...DEFAULT_EXPRESSION_MOTION },
 };
@@ -107,7 +116,10 @@ export function normalizePointer(
     return { ...DEFAULT_CONFIG.pointer, enabled: config };
   return {
     enabled: config.enabled ?? true,
-    strength: clamp(config.strength, 0, 2, DEFAULT_CONFIG.pointer.strength),
+    strength: clamp(config.strength, 0, 3, DEFAULT_CONFIG.pointer.strength),
+    rangeX: clamp(config.rangeX, 0, 30, DEFAULT_CONFIG.pointer.rangeX),
+    rangeY: clamp(config.rangeY, 0, 24, DEFAULT_CONFIG.pointer.rangeY),
+    tilt: clamp(config.tilt, 0, 10, DEFAULT_CONFIG.pointer.tilt),
   };
 }
 

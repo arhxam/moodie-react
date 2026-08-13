@@ -630,6 +630,7 @@ a {
   font-size: 13px;
 }
 .api-install > div {
+  width: 100%;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -639,7 +640,12 @@ a {
   color: var(--muted-foreground);
 }
 .api-install code {
+  min-width: 0;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
   white-space: nowrap;
+  scrollbar-width: thin;
 }
 .api-table-wrap table {
   width: 100%;

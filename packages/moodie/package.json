@@ -38,10 +38,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arhxam/custom-icon.git"
+    "url": "git+https://github.com/arhxam/moodie-react.git"
   },
   "homepage": "https://moodie-react.vercel.app",
   "bugs": {
-    "url": "https://github.com/arhxam/custom-icon/issues"
+    "url": "https://github.com/arhxam/moodie-react/issues"
   }
 }

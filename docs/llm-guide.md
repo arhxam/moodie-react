@@ -9,7 +9,7 @@ Use Moodie when a React interface benefits from a small expressive presence: loa
 Install:
 
 ```bash
-npm install @moodie/react motion
+npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion
 ```
 
 Import from the public entrypoint only:
@@ -65,7 +65,11 @@ export function StatusMood({ status }: { status: Status }) {
       ariaLabel={`Current status: ${status}`}
       color="var(--brand-accent)"
       eyeColor="var(--brand-accent-foreground)"
-      pointer={status === "idle"}
+      pointer={
+        status === "idle"
+          ? { enabled: true, strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }
+          : false
+      }
       blink
       motion={status === "success" ? "bouncy" : "spring"}
     />
@@ -106,7 +110,7 @@ const [expression, setExpression] = useState("curious");
 - `spring?: { stiffness?: number; damping?: number; mass?: number }`
 - `expressionMotion?: boolean | { enabled?: boolean; intensity?: number; duration?: number; eyes?: boolean; body?: boolean }`
 - `blink?: boolean | { enabled?: boolean; interval?: [minMs, maxMs]; duration?: ms }`
-- `pointer?: boolean | { enabled?: boolean; strength?: number }`
+- `pointer?: boolean | { enabled?: boolean; strength?: number; rangeX?: number; rangeY?: number; tilt?: number }`
 - `auto?: boolean | { enabled?: boolean; expressions?: string[]; interval?: [minMs, maxMs] }`
 - `gaze?: { x: number; y: number } | false` where coordinates are normalized −1 to 1
 - `gazeLimit?: number`

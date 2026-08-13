@@ -204,7 +204,10 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       () => normalizePointer(pointer),
       [
         typeof pointer === "boolean" ? pointer : pointer.enabled,
-        typeof pointer === "boolean" ? 1 : pointer.strength,
+        typeof pointer === "boolean" ? undefined : pointer.strength,
+        typeof pointer === "boolean" ? undefined : pointer.rangeX,
+        typeof pointer === "boolean" ? undefined : pointer.rangeY,
+        typeof pointer === "boolean" ? undefined : pointer.tilt,
       ],
     );
     const autoConfig = useMemo(
@@ -509,66 +512,93 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         data-gaze-y={String(Number(normalizedGaze.y.toFixed(3)))}
         data-reduced-motion={String(shouldReduceMotion)}
         data-expression-motion={String(expressionMotionEnabled)}
+        data-pointer-strength={String(pointerConfig.strength)}
+        data-pointer-range-x={String(pointerConfig.rangeX)}
+        data-pointer-range-y={String(pointerConfig.rangeY)}
+        data-pointer-tilt={String(pointerConfig.tilt)}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onClick={handleClick}
       >
         <motion.g
-          animate={reactionControls}
+          data-part="pointer-performance"
+          animate={{
+            x: shouldReduceMotion
+              ? 0
+              : normalizedGaze.x * 2.5 * clamp(gazeLimit, 0, 2),
+            y: shouldReduceMotion
+              ? 0
+              : normalizedGaze.y * 1.75 * clamp(gazeLimit, 0, 2),
+            rotate: shouldReduceMotion
+              ? 0
+              : normalizedGaze.x * pointerConfig.tilt * clamp(gazeLimit, 0, 2),
+          }}
+          transition={transition}
           style={{ transformOrigin: "100px 100px" }}
         >
-          <motion.path
-            data-part="body"
-            d={bodyPath}
-            fill={color}
-            animate={{
-              d: bodyPath,
-              rotate: definition.body?.rotate ?? 0,
-              scaleX: (definition.body?.scaleX ?? 1) * (flip ? -1 : 1),
-              scaleY: definition.body?.scaleY ?? 1,
-              y: definition.body?.y ?? 0,
-            }}
-            transition={transition}
-            style={{ transformOrigin: "100px 100px" }}
-          />
           <motion.g
-            data-part="eyes"
-            animate={{
-              x: normalizedGaze.x * 11 * clamp(gazeLimit, 0, 2),
-              y: normalizedGaze.y * 7 * clamp(gazeLimit, 0, 2),
-            }}
-            transition={transition}
-            style={{ transformOrigin: "100px 96px" }}
+            animate={reactionControls}
+            style={{ transformOrigin: "100px 100px" }}
           >
+            <motion.path
+              data-part="body"
+              d={bodyPath}
+              fill={color}
+              animate={{
+                d: bodyPath,
+                rotate: definition.body?.rotate ?? 0,
+                scaleX: (definition.body?.scaleX ?? 1) * (flip ? -1 : 1),
+                scaleY: definition.body?.scaleY ?? 1,
+                y: definition.body?.y ?? 0,
+              }}
+              transition={transition}
+              style={{ transformOrigin: "100px 100px" }}
+            />
             <motion.g
-              data-part="expression-cue"
-              animate={expressionControls}
+              data-part="eyes"
+              animate={{
+                x:
+                  normalizedGaze.x *
+                  pointerConfig.rangeX *
+                  clamp(gazeLimit, 0, 2),
+                y:
+                  normalizedGaze.y *
+                  pointerConfig.rangeY *
+                  clamp(gazeLimit, 0, 2),
+              }}
+              transition={transition}
               style={{ transformOrigin: "100px 96px" }}
             >
               <motion.g
-                data-part="blink"
-                animate={{ scaleY: isBlinking ? 0.06 : 1 }}
-                transition={
-                  isBlinking
-                    ? { duration: blinkConfig.duration / 2000 }
-                    : transition
-                }
+                data-part="expression-cue"
+                animate={expressionControls}
                 style={{ transformOrigin: "100px 96px" }}
               >
-                <motion.path
-                  data-part="left-eye"
-                  d={leftPath}
-                  fill={eyeColor}
-                  animate={{ d: leftPath }}
-                  transition={transition}
-                />
-                <motion.path
-                  data-part="right-eye"
-                  d={rightPath}
-                  fill={eyeColor}
-                  animate={{ d: rightPath }}
-                  transition={transition}
-                />
+                <motion.g
+                  data-part="blink"
+                  animate={{ scaleY: isBlinking ? 0.06 : 1 }}
+                  transition={
+                    isBlinking
+                      ? { duration: blinkConfig.duration / 2000 }
+                      : transition
+                  }
+                  style={{ transformOrigin: "100px 96px" }}
+                >
+                  <motion.path
+                    data-part="left-eye"
+                    d={leftPath}
+                    fill={eyeColor}
+                    animate={{ d: leftPath }}
+                    transition={transition}
+                  />
+                  <motion.path
+                    data-part="right-eye"
+                    d={rightPath}
+                    fill={eyeColor}
+                    animate={{ d: rightPath }}
+                    transition={transition}
+                  />
+                </motion.g>
               </motion.g>
             </motion.g>
           </motion.g>

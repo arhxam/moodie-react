@@ -58,11 +58,31 @@ describe("configuration normalization", () => {
     expect(normalizeBlink(false).enabled).toBe(false);
     expect(normalizePointer(true)).toMatchObject({
       enabled: true,
-      strength: 1,
+      strength: 1.35,
+      rangeX: 18,
+      rangeY: 12,
+      tilt: 3,
     });
     expect(normalizeAuto(true)).toMatchObject({
       enabled: true,
       interval: [2400, 5200],
+    });
+  });
+
+  it("clamps pointer sensitivity, travel, and tilt to safe ranges", () => {
+    expect(
+      normalizePointer({
+        strength: 99,
+        rangeX: -4,
+        rangeY: 99,
+        tilt: 99,
+      }),
+    ).toEqual({
+      enabled: true,
+      strength: 3,
+      rangeX: 0,
+      rangeY: 24,
+      tilt: 10,
     });
   });
 
@@ -88,6 +108,13 @@ describe("configuration normalization", () => {
         duration: 620,
         eyes: true,
         body: true,
+      },
+      pointer: {
+        enabled: true,
+        strength: 1.35,
+        rangeX: 18,
+        rangeY: 12,
+        tilt: 3,
       },
     });
   });

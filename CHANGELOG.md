@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added stronger cursor tracking with configurable sensitivity, horizontal and vertical travel, and directional tilt.
+- Prepared direct GitHub Release installation and canonical public repository metadata.
 - Added automatic expression performances with semantic eye choreography and configurable intensity, duration, eye, and body layers.
 - Made reaction animations safe under rapid interruption and kept energetic bounce motion volume-preserving.
 - Recentered organic body geometry and corrected responsive SVG sizing in the demo.

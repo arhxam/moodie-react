@@ -77,7 +77,13 @@ export function Playground() {
                 damping: config.damping,
                 mass: config.mass,
               }}
-              pointer={{ enabled: config.pointer, strength: 1 }}
+              pointer={{
+                enabled: config.pointer,
+                strength: config.pointerStrength,
+                rangeX: config.pointerRangeX,
+                rangeY: config.pointerRangeY,
+                tilt: config.pointerTilt,
+              }}
               blink={config.blink}
               auto={
                 config.auto

@@ -9,6 +9,9 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
+const installCommand =
+  "npm install https://github.com/arhxam/moodie-react/releases/latest/download/moodie-react.tgz motion";
+
 const rows = [
   [
     "expression",
@@ -37,10 +40,16 @@ const rows = [
     "Body reaction and semantic eye performance on expression changes.",
   ],
   [
-    "pointer / blink / auto",
+    "pointer",
+    "boolean | config",
+    "true",
+    "Sensitivity, horizontal/vertical travel, cursor tilt, and enablement.",
+  ],
+  [
+    "blink / auto",
     "boolean | config",
     "mixed",
-    "Behavior shorthands or detailed cadence configs.",
+    "Behavior shorthands or detailed cadence configuration.",
   ],
   [
     "clickAction",
@@ -58,7 +67,7 @@ const rows = [
 
 export function ApiSection() {
   const copyInstall = async () => {
-    await navigator.clipboard.writeText("npm install @moodie/react motion");
+    await navigator.clipboard.writeText(installCommand);
     toast.success("Install command copied");
   };
 
@@ -90,7 +99,7 @@ export function ApiSection() {
       >
         <div>
           <span>$</span>
-          <code>npm install @moodie/react motion</code>
+          <code>{installCommand}</code>
         </div>
         <Button variant="outline" size="sm" onClick={copyInstall}>
           <CopyIcon data-icon="inline-start" />
@@ -145,7 +154,7 @@ export function ApiSection() {
           </Button>
           <Button variant="outline" asChild>
             <a
-              href="https://github.com/arhxam/custom-icon/blob/master/docs/llm-guide.md"
+              href="https://github.com/arhxam/moodie-react/blob/master/docs/llm-guide.md"
               target="_blank"
               rel="noreferrer"
             >
