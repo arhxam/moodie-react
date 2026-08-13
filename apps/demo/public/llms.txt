@@ -17,9 +17,11 @@ Built-in expressions: neutral, happy, excited, sleepy, sad, worried, thinking, l
 
 Shapes: circle, squircle, blob, pebble, diamond.
 
-Expression changes automatically combine a body reaction and an expression-specific eye performance. Configure this with expressionMotion or disable it with expressionMotion={false}.
+Expression changes combine body and eye performances. Eye motion also supports notice, glance, squint, wide, and flutter cues; parent-canvas tracking; hover recognition; idle choreography; and right-click blinking.
 
-Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
+Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, eyeMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
+
+Use pointer.target="parent" for full-canvas gaze and eyeMotion.contextMenuBlink for right-click blinking.
 
 Controlled interaction:
 

@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type SVGProps,
 } from "react";
@@ -21,13 +22,17 @@ import {
   DEFAULT_CONFIG,
   normalizeAuto,
   normalizeBlink,
+  normalizeEyeMotion,
   normalizePointer,
   normalizeSpring,
   type AutoConfig,
   type BlinkConfig,
+  type EyeAnimationName,
+  type EyeMotionConfig,
   type PointerConfig,
   type SpringConfig,
 } from "./config";
+import { createEyeAnimationCue } from "./eye-motion";
 import {
   createExpressionCue,
   createReactionCue,
@@ -57,6 +62,7 @@ export type ClickAction = "react" | "cycle" | "random" | "none";
 
 export type MoodieHandle = {
   blink: () => void;
+  animateEyes: (animation?: EyeAnimationName) => void;
   react: (reaction?: ReactionName) => void;
   setExpression: (expression: string) => void;
   lookAt: (point: GazePoint) => void;
@@ -83,6 +89,7 @@ export type MoodieProps = Omit<
   spring?: Partial<SpringConfig>;
   expressionMotion?: boolean | Partial<ExpressionMotionConfig>;
   blink?: boolean | Partial<BlinkConfig>;
+  eyeMotion?: boolean | Partial<EyeMotionConfig>;
   pointer?: boolean | Partial<PointerConfig>;
   auto?: boolean | Partial<AutoConfig>;
   gaze?: GazePoint | false;
@@ -162,6 +169,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       spring,
       expressionMotion = true,
       blink = true,
+      eyeMotion = true,
       pointer = true,
       auto = false,
       gaze,
@@ -173,6 +181,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       className,
       style,
       onClick,
+      onContextMenu,
+      onPointerEnter,
       onPointerMove,
       onPointerLeave,
       ...svgProps
@@ -182,10 +192,19 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const currentExpression = expression ?? internalExpression;
     const [internalGaze, setInternalGaze] = useState<GazePoint>({ x: 0, y: 0 });
     const [isBlinking, setIsBlinking] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [activeEyeAnimation, setActiveEyeAnimation] =
+      useState<EyeAnimationName | null>(null);
+    const svgRef = useRef<SVGSVGElement | null>(null);
     const blinkTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const eyeAnimationTimeout = useRef<ReturnType<typeof setTimeout> | null>(
+      null,
+    );
+    const lastIdleEyeAnimation = useRef<EyeAnimationName | null>(null);
     const systemReducedMotion = useReducedMotion();
     const reactionControls = useAnimationControls();
     const expressionControls = useAnimationControls();
+    const eyeControls = useAnimationControls();
     const previousExpression = useRef(currentExpression);
 
     const shouldReduceMotion =
@@ -204,10 +223,27 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       () => normalizePointer(pointer),
       [
         typeof pointer === "boolean" ? pointer : pointer.enabled,
+        typeof pointer === "boolean" ? undefined : pointer.target,
         typeof pointer === "boolean" ? undefined : pointer.strength,
         typeof pointer === "boolean" ? undefined : pointer.rangeX,
         typeof pointer === "boolean" ? undefined : pointer.rangeY,
         typeof pointer === "boolean" ? undefined : pointer.tilt,
+      ],
+    );
+    const eyeMotionConfig = useMemo(
+      () => normalizeEyeMotion(eyeMotion),
+      [
+        typeof eyeMotion === "boolean" ? eyeMotion : eyeMotion.enabled,
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.idle,
+        typeof eyeMotion === "boolean"
+          ? undefined
+          : eyeMotion.idleAnimations?.join("|"),
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.interval?.[0],
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.interval?.[1],
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.intensity,
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.hover,
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.hoverReaction,
+        typeof eyeMotion === "boolean" ? undefined : eyeMotion.contextMenuBlink,
       ],
     );
     const autoConfig = useMemo(
@@ -260,6 +296,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       expressionMotionConfig.enabled &&
       !shouldReduceMotion &&
       motionPreset !== "none";
+    const eyeMotionEnabled =
+      eyeMotionConfig.enabled && !shouldReduceMotion && motionPreset !== "none";
     const leftPath = createEyePath(
       transformedEye(
         definition.left,
@@ -334,6 +372,73 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       );
     }, [blinkConfig.duration]);
 
+    const playEyeAnimation = useCallback(
+      (animation: EyeAnimationName = "notice") => {
+        if (!eyeMotionEnabled) return;
+        if (eyeAnimationTimeout.current)
+          clearTimeout(eyeAnimationTimeout.current);
+        const cue = createEyeAnimationCue(animation, eyeMotionConfig.intensity);
+        eyeControls.stop();
+        eyeControls.set(neutralTransform);
+        setActiveEyeAnimation(animation);
+        void eyeControls.start(cue as TargetAndTransition);
+        eyeAnimationTimeout.current = setTimeout(
+          () => setActiveEyeAnimation(null),
+          cue.transition.duration * 1000,
+        );
+      },
+      [eyeControls, eyeMotionConfig.intensity, eyeMotionEnabled],
+    );
+
+    const updateGaze = useCallback(
+      (clientX: number, clientY: number, surface: Element) => {
+        if (!pointerConfig.enabled || gaze !== undefined) return;
+        const bounds = surface.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return;
+        setInternalGaze({
+          x:
+            clamp(((clientX - bounds.left) / bounds.width) * 2 - 1, -1, 1) *
+            pointerConfig.strength,
+          y:
+            clamp(((clientY - bounds.top) / bounds.height) * 2 - 1, -1, 1) *
+            pointerConfig.strength,
+        });
+      },
+      [gaze, pointerConfig.enabled, pointerConfig.strength],
+    );
+
+    const enterSurface = useCallback(() => {
+      setIsHovered(true);
+      if (eyeMotionConfig.hover !== "none")
+        playEyeAnimation(eyeMotionConfig.hover);
+      if (eyeMotionEnabled && eyeMotionConfig.hoverReaction !== "none")
+        playReaction(eyeMotionConfig.hoverReaction);
+    }, [
+      eyeMotionConfig.hover,
+      eyeMotionConfig.hoverReaction,
+      eyeMotionEnabled,
+      playEyeAnimation,
+      playReaction,
+    ]);
+
+    const leaveSurface = useCallback(() => {
+      setIsHovered(false);
+      if (pointerConfig.enabled && gaze === undefined)
+        setInternalGaze({ x: 0, y: 0 });
+    }, [gaze, pointerConfig.enabled]);
+
+    const leaveFace = useCallback(() => setIsHovered(false), []);
+
+    const blinkFromContextMenu = useCallback(
+      (event: Event) => {
+        if (!eyeMotionConfig.enabled || !eyeMotionConfig.contextMenuBlink)
+          return;
+        event.preventDefault();
+        triggerBlink();
+      },
+      [eyeMotionConfig.contextMenuBlink, eyeMotionConfig.enabled, triggerBlink],
+    );
+
     const orderedExpressions = useMemo(() => {
       const requested = expressionOrder ?? autoConfig.expressions;
       const catalog = requested?.length
@@ -363,6 +468,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       forwardedRef,
       () => ({
         blink: triggerBlink,
+        animateEyes: playEyeAnimation,
         react: playReaction,
         setExpression: updateExpression,
         lookAt: (point) =>
@@ -371,13 +477,20 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
             y: clamp(point.y, -1, 1),
           }),
       }),
-      [playReaction, triggerBlink, updateExpression],
+      [playEyeAnimation, playReaction, triggerBlink, updateExpression],
     );
 
     useEffect(() => {
       if (pointerConfig.enabled) return;
       setInternalGaze({ x: 0, y: 0 });
     }, [pointerConfig.enabled]);
+
+    useEffect(() => {
+      if (eyeMotionEnabled) return;
+      eyeControls.stop();
+      eyeControls.set(neutralTransform);
+      setActiveEyeAnimation(null);
+    }, [eyeControls, eyeMotionEnabled]);
 
     useEffect(() => {
       const previous = previousExpression.current;
@@ -432,6 +545,53 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     useEffect(() => {
       if (
+        !eyeMotionEnabled ||
+        !eyeMotionConfig.idle ||
+        eyeMotionConfig.idleAnimations.length === 0
+      )
+        return;
+      let timer: ReturnType<typeof setTimeout>;
+      let cancelled = false;
+      const schedule = () => {
+        timer = setTimeout(() => {
+          if (
+            cancelled ||
+            isHovered ||
+            (typeof document !== "undefined" && document.hidden)
+          ) {
+            schedule();
+            return;
+          }
+          const candidates = eyeMotionConfig.idleAnimations.filter(
+            (animation) => animation !== lastIdleEyeAnimation.current,
+          );
+          const catalog = candidates.length
+            ? candidates
+            : eyeMotionConfig.idleAnimations;
+          const next = catalog[Math.floor(Math.random() * catalog.length)];
+          if (next) {
+            lastIdleEyeAnimation.current = next;
+            playEyeAnimation(next);
+          }
+          schedule();
+        }, randomDelay(eyeMotionConfig.interval));
+      };
+      schedule();
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }, [
+      eyeMotionConfig.idle,
+      eyeMotionConfig.idleAnimations,
+      eyeMotionConfig.interval,
+      eyeMotionEnabled,
+      isHovered,
+      playEyeAnimation,
+    ]);
+
+    useEffect(() => {
+      if (
         !autoConfig.enabled ||
         shouldReduceMotion ||
         orderedExpressions.length < 2
@@ -454,29 +614,64 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     useEffect(
       () => () => {
         if (blinkTimeout.current) clearTimeout(blinkTimeout.current);
+        if (eyeAnimationTimeout.current)
+          clearTimeout(eyeAnimationTimeout.current);
       },
       [],
     );
 
+    useEffect(() => {
+      if (!pointerConfig.enabled || pointerConfig.target !== "parent") return;
+      const surface = svgRef.current?.parentElement;
+      if (!surface) return;
+      const move = (event: Event) => {
+        const pointerEvent = event as PointerEvent;
+        updateGaze(pointerEvent.clientX, pointerEvent.clientY, surface);
+      };
+      const enter = (event: Event) => {
+        move(event);
+      };
+      const leave = () => leaveSurface();
+      const contextMenu = (event: Event) => blinkFromContextMenu(event);
+      surface.addEventListener("pointermove", move);
+      surface.addEventListener("pointerenter", enter);
+      surface.addEventListener("pointerleave", leave);
+      surface.addEventListener("contextmenu", contextMenu);
+      return () => {
+        surface.removeEventListener("pointermove", move);
+        surface.removeEventListener("pointerenter", enter);
+        surface.removeEventListener("pointerleave", leave);
+        surface.removeEventListener("contextmenu", contextMenu);
+      };
+    }, [
+      blinkFromContextMenu,
+      leaveSurface,
+      pointerConfig.enabled,
+      pointerConfig.target,
+      updateGaze,
+    ]);
+
     const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
       onPointerMove?.(event);
-      if (!pointerConfig.enabled || gaze !== undefined) return;
-      const bounds = event.currentTarget.getBoundingClientRect();
-      if (!bounds.width || !bounds.height) return;
-      setInternalGaze({
-        x:
-          clamp(((event.clientX - bounds.left) / bounds.width) * 2 - 1, -1, 1) *
-          pointerConfig.strength,
-        y:
-          clamp(((event.clientY - bounds.top) / bounds.height) * 2 - 1, -1, 1) *
-          pointerConfig.strength,
-      });
+      if (pointerConfig.target !== "self") return;
+      updateGaze(event.clientX, event.clientY, event.currentTarget);
+    };
+
+    const handlePointerEnter = (event: ReactPointerEvent<SVGSVGElement>) => {
+      onPointerEnter?.(event);
+      enterSurface();
     };
 
     const handlePointerLeave = (event: ReactPointerEvent<SVGSVGElement>) => {
       onPointerLeave?.(event);
-      if (pointerConfig.enabled && gaze === undefined)
-        setInternalGaze({ x: 0, y: 0 });
+      if (pointerConfig.target === "self") leaveSurface();
+      else leaveFace();
+    };
+
+    const handleContextMenu = (event: ReactMouseEvent<SVGSVGElement>) => {
+      onContextMenu?.(event);
+      if (event.defaultPrevented || pointerConfig.target !== "self") return;
+      blinkFromContextMenu(event.nativeEvent);
     };
 
     const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -498,6 +693,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     return (
       <svg
         {...svgProps}
+        ref={svgRef}
         role="img"
         aria-label={ariaLabel}
         viewBox="0 0 200 200"
@@ -516,8 +712,14 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         data-pointer-range-x={String(pointerConfig.rangeX)}
         data-pointer-range-y={String(pointerConfig.rangeY)}
         data-pointer-tilt={String(pointerConfig.tilt)}
+        data-pointer-target={pointerConfig.target}
+        data-hovered={String(isHovered)}
+        data-eye-motion={String(eyeMotionEnabled)}
+        data-eye-animation={activeEyeAnimation ?? "none"}
+        onPointerEnter={handlePointerEnter}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onContextMenu={handleContextMenu}
         onClick={handleClick}
       >
         <motion.g
@@ -570,34 +772,40 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
               style={{ transformOrigin: "100px 96px" }}
             >
               <motion.g
-                data-part="expression-cue"
-                animate={expressionControls}
+                data-part="eye-performance"
+                animate={eyeControls}
                 style={{ transformOrigin: "100px 96px" }}
               >
                 <motion.g
-                  data-part="blink"
-                  animate={{ scaleY: isBlinking ? 0.06 : 1 }}
-                  transition={
-                    isBlinking
-                      ? { duration: blinkConfig.duration / 2000 }
-                      : transition
-                  }
+                  data-part="expression-cue"
+                  animate={expressionControls}
                   style={{ transformOrigin: "100px 96px" }}
                 >
-                  <motion.path
-                    data-part="left-eye"
-                    d={leftPath}
-                    fill={eyeColor}
-                    animate={{ d: leftPath }}
-                    transition={transition}
-                  />
-                  <motion.path
-                    data-part="right-eye"
-                    d={rightPath}
-                    fill={eyeColor}
-                    animate={{ d: rightPath }}
-                    transition={transition}
-                  />
+                  <motion.g
+                    data-part="blink"
+                    animate={{ scaleY: isBlinking ? 0.06 : 1 }}
+                    transition={
+                      isBlinking
+                        ? { duration: blinkConfig.duration / 2000 }
+                        : transition
+                    }
+                    style={{ transformOrigin: "100px 96px" }}
+                  >
+                    <motion.path
+                      data-part="left-eye"
+                      d={leftPath}
+                      fill={eyeColor}
+                      animate={{ d: leftPath }}
+                      transition={transition}
+                    />
+                    <motion.path
+                      data-part="right-eye"
+                      d={rightPath}
+                      fill={eyeColor}
+                      animate={{ d: rightPath }}
+                      transition={transition}
+                    />
+                  </motion.g>
                 </motion.g>
               </motion.g>
             </motion.g>

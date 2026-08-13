@@ -4,6 +4,7 @@ import {
   DEFAULT_CONFIG,
   normalizeAuto,
   normalizeBlink,
+  normalizeEyeMotion,
   normalizePointer,
   normalizeSpring,
 } from "../src/config";
@@ -58,6 +59,7 @@ describe("configuration normalization", () => {
     expect(normalizeBlink(false).enabled).toBe(false);
     expect(normalizePointer(true)).toMatchObject({
       enabled: true,
+      target: "self",
       strength: 1.35,
       rangeX: 18,
       rangeY: 12,
@@ -66,6 +68,35 @@ describe("configuration normalization", () => {
     expect(normalizeAuto(true)).toMatchObject({
       enabled: true,
       interval: [2400, 5200],
+    });
+  });
+
+  it("normalizes natural eye motion defaults and invalid values", () => {
+    expect(normalizeEyeMotion(true)).toMatchObject({
+      enabled: true,
+      idle: true,
+      idleAnimations: ["glance", "squint", "flutter"],
+      interval: [2400, 5200],
+      intensity: 1,
+      hover: "notice",
+      hoverReaction: "tilt",
+      contextMenuBlink: true,
+    });
+
+    expect(
+      normalizeEyeMotion({
+        interval: [9000, 20],
+        intensity: 99,
+        idleAnimations: ["wide", "invalid", "wide"],
+        hover: "invalid",
+        hoverReaction: "invalid",
+      } as never),
+    ).toMatchObject({
+      interval: [500, 9000],
+      intensity: 2,
+      idleAnimations: ["wide"],
+      hover: "notice",
+      hoverReaction: "tilt",
     });
   });
 
@@ -79,6 +110,7 @@ describe("configuration normalization", () => {
       }),
     ).toEqual({
       enabled: true,
+      target: "self",
       strength: 3,
       rangeX: 0,
       rangeY: 24,
@@ -111,10 +143,21 @@ describe("configuration normalization", () => {
       },
       pointer: {
         enabled: true,
+        target: "self",
         strength: 1.35,
         rangeX: 18,
         rangeY: 12,
         tilt: 3,
+      },
+      eyeMotion: {
+        enabled: true,
+        idle: true,
+        idleAnimations: ["glance", "squint", "flutter"],
+        interval: [2400, 5200],
+        intensity: 1,
+        hover: "notice",
+        hoverReaction: "tilt",
+        contextMenuBlink: true,
       },
     });
   });

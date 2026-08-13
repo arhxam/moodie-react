@@ -38,11 +38,13 @@ export function LoadingState() {
 - Automatic squash, rebound, and expression-specific eye performances
 - Five body shapes and fully configurable CSS colors
 - Pointer-following gaze, automatic blinking, and expression cycling
-- Configurable cursor sensitivity, horizontal/vertical travel, and face tilt
+- Face-only or parent-canvas gaze with configurable sensitivity, travel, and tilt
+- Natural notice, glance, squint, widen, and flutter eye performances
+- Configurable hover recognition, idle micro-motion, and right-click blinking
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
 - Controlled or uncontrolled React state
 - Custom expressions built from normalized eye geometry
-- Imperative `blink`, `lookAt`, `react`, and `setExpression` methods
+- Imperative `blink`, `animateEyes`, `lookAt`, `react`, and `setExpression` methods
 - SSR-safe and respectful of `prefers-reduced-motion`
 - Typed, asset-free, ESM, and tree-shakeable
 
@@ -79,7 +81,21 @@ The demo opens at `http://localhost:5173` by default.
   motion="spring"
   spring={{ stiffness: 210, damping: 22, mass: 0.8 }}
   expressionMotion={{ intensity: 1.35, duration: 620 }}
-  pointer={{ enabled: true, strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }}
+  pointer={{
+    enabled: true,
+    target: "parent",
+    strength: 1.35,
+    rangeX: 18,
+    rangeY: 12,
+    tilt: 3,
+  }}
+  eyeMotion={{
+    idle: true,
+    idleAnimations: ["glance", "squint", "flutter"],
+    hover: "notice",
+    hoverReaction: "tilt",
+    contextMenuBlink: true,
+  }}
   blink={{ enabled: true, interval: [2600, 6200], duration: 150 }}
   auto={{ enabled: false, expressions: ["neutral", "thinking"] }}
   eyeScale={1}
@@ -93,7 +109,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.1.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.2.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 

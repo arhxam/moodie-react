@@ -1,4 +1,10 @@
-import type { MotionPreset, ShapeName } from "@moodie/react";
+import type {
+  EyeAnimationName,
+  MotionPreset,
+  PointerTrackingTarget,
+  ReactionName,
+  ShapeName,
+} from "@moodie/react";
 
 export type PlaygroundConfig = {
   expression: string;
@@ -18,10 +24,19 @@ export type PlaygroundConfig = {
   eyePerformance: boolean;
   bodyPerformance: boolean;
   pointer: boolean;
+  pointerTarget: PointerTrackingTarget;
   pointerStrength: number;
   pointerRangeX: number;
   pointerRangeY: number;
   pointerTilt: number;
+  eyeMotion: boolean;
+  idleEyeMotion: boolean;
+  hoverEyeMotion: EyeAnimationName | "none";
+  hoverReaction: ReactionName;
+  contextMenuBlink: boolean;
+  eyeMotionIntensity: number;
+  eyeMotionIntervalMin: number;
+  eyeMotionIntervalMax: number;
   blink: boolean;
   auto: boolean;
 };
@@ -44,10 +59,19 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   eyePerformance: true,
   bodyPerformance: true,
   pointer: true,
+  pointerTarget: "parent",
   pointerStrength: 1.35,
   pointerRangeX: 18,
   pointerRangeY: 12,
   pointerTilt: 3,
+  eyeMotion: true,
+  idleEyeMotion: true,
+  hoverEyeMotion: "notice",
+  hoverReaction: "tilt",
+  contextMenuBlink: true,
+  eyeMotionIntensity: 1,
+  eyeMotionIntervalMin: 2400,
+  eyeMotionIntervalMax: 5200,
   blink: true,
   auto: false,
 };
@@ -82,6 +106,22 @@ export const MOTION_PRESETS = [
   "tween",
   "none",
 ] as const;
+export const POINTER_TARGETS = ["parent", "self"] as const;
+export const EYE_ANIMATIONS = [
+  "notice",
+  "glance",
+  "squint",
+  "wide",
+  "flutter",
+  "none",
+] as const;
+export const HOVER_REACTIONS = [
+  "tilt",
+  "bounce",
+  "squash",
+  "spin",
+  "none",
+] as const;
 
 const formatNumber = (value: number) => Number(value.toFixed(2));
 
@@ -98,7 +138,8 @@ export function StatusFace() {
       size={${config.size}}
       motion="${config.motion}"
       spring={{ stiffness: ${config.stiffness}, damping: ${config.damping}, mass: ${config.mass} }}
-      pointer={{ enabled: ${config.pointer}, strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
+      pointer={{ enabled: ${config.pointer}, target: "${config.pointerTarget}", strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
+      eyeMotion={{ enabled: ${config.eyeMotion}, idle: ${config.idleEyeMotion}, hover: "${config.hoverEyeMotion}", hoverReaction: "${config.hoverReaction}", contextMenuBlink: ${config.contextMenuBlink}, intensity: ${formatNumber(config.eyeMotionIntensity)}, interval: [${config.eyeMotionIntervalMin}, ${config.eyeMotionIntervalMax}] }}
       blink={${config.blink}}
       auto={${config.auto}}
       eyeScale={${formatNumber(config.eyeScale)}}
@@ -117,10 +158,19 @@ export function createJson(config: PlaygroundConfig) {
     damping,
     mass,
     pointer,
+    pointerTarget,
     pointerStrength,
     pointerRangeX,
     pointerRangeY,
     pointerTilt,
+    eyeMotion,
+    idleEyeMotion,
+    hoverEyeMotion,
+    hoverReaction,
+    contextMenuBlink,
+    eyeMotionIntensity,
+    eyeMotionIntervalMin,
+    eyeMotionIntervalMax,
     blink,
     auto,
     expressiveness,
@@ -135,10 +185,20 @@ export function createJson(config: PlaygroundConfig) {
       spring: { stiffness, damping, mass },
       pointer: {
         enabled: pointer,
+        target: pointerTarget,
         strength: pointerStrength,
         rangeX: pointerRangeX,
         rangeY: pointerRangeY,
         tilt: pointerTilt,
+      },
+      eyeMotion: {
+        enabled: eyeMotion,
+        idle: idleEyeMotion,
+        hover: hoverEyeMotion,
+        hoverReaction,
+        contextMenuBlink,
+        intensity: eyeMotionIntensity,
+        interval: [eyeMotionIntervalMin, eyeMotionIntervalMax],
       },
       blink: { enabled: blink },
       auto: { enabled: auto },
