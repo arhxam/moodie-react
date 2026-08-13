@@ -32,6 +32,15 @@ const project = (gaze: { x: number; y: number }, side: -1 | 1 = -1) =>
 const coordinates = (path: string) =>
   path.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
 
+const anchors = (path: string) => {
+  const values = coordinates(path);
+  const points: Array<readonly [number, number]> = [[values[0], values[1]]];
+  for (let index = 2; index + 5 < values.length; index += 6) {
+    points.push([values[index + 4], values[index + 5]]);
+  }
+  return points.slice(0, 12);
+};
+
 describe("surface projection", () => {
   it("normalizes defaults, shorthand flags, and unsafe values", () => {
     expect(normalizeSurface(false)).toMatchObject({
@@ -107,6 +116,63 @@ describe("surface projection", () => {
     expect(near.depthScale).toBeLessThan(far.depthScale);
     expect(near.tangentScale).toBeGreaterThan(1);
     expect(near.tangentScale).toBeLessThanOrEqual(1.12);
+  });
+
+  it("compresses only the outward contour shoulder at an edge", () => {
+    const baseline = projectEyeOnSurface({
+      geometry: { ...geometry, x: 128 },
+      side: 1,
+      gaze: { x: 1, y: 0 },
+      rangeX: 30,
+      rangeY: 24,
+      eyeScale: 1,
+      eyeDistance: 1,
+      turn: 0,
+      surface: normalizeSurface({
+        edgeCompression: 0,
+        depth: 0,
+        volumePreservation: 0,
+      }),
+    });
+    const edge = projectEyeOnSurface({
+      geometry: { ...geometry, x: 128 },
+      side: 1,
+      gaze: { x: 1, y: 0 },
+      rangeX: 30,
+      rangeY: 24,
+      eyeScale: 1,
+      eyeDistance: 1,
+      turn: 0,
+      surface: normalizeSurface({
+        edgeCompression: 1,
+        depth: 0,
+        volumePreservation: 1,
+      }),
+    });
+    const baselinePoints = anchors(baseline.path);
+    const edgePoints = anchors(edge.path);
+    const innerIndex = baselinePoints.reduce(
+      (selected, point, index, points) =>
+        point[0] < points[selected][0] ? index : selected,
+      0,
+    );
+    const outerIndex = baselinePoints.reduce(
+      (selected, point, index, points) =>
+        point[0] > points[selected][0] ? index : selected,
+      0,
+    );
+
+    expect(edgePoints[innerIndex][0]).toBeCloseTo(
+      baselinePoints[innerIndex][0],
+      1,
+    );
+    expect(edgePoints[innerIndex][1]).toBeCloseTo(
+      baselinePoints[innerIndex][1],
+      1,
+    );
+    expect(edgePoints[outerIndex][0]).toBeLessThan(
+      baselinePoints[outerIndex][0] - 2,
+    );
   });
 
   it("makes volume preservation configurable and bounded", () => {

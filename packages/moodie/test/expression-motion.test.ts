@@ -54,6 +54,22 @@ describe("expression motion", () => {
     expect(happy).not.toEqual(worried);
   });
 
+  it("applies eye stagger only to the explicit expression cue", () => {
+    const config = normalizeExpressionMotion({ stagger: 48 });
+    const lead = createExpressionCue(
+      expressionPresets.curious.performance,
+      config,
+    );
+    const follow = createExpressionCue(
+      expressionPresets.curious.performance,
+      config,
+      config.stagger,
+    );
+
+    expect(lead.transition.delay).toBe(0);
+    expect(follow.transition.delay).toBe(0.048);
+  });
+
   it("clamps choreography controls to deformation-safe ranges", () => {
     expect(
       normalizeExpressionMotion({

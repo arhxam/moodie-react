@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -290,7 +291,7 @@ describe("Moodie", () => {
     ).not.toBeNull();
   });
 
-  it("projects each eye independently across the curved face surface", () => {
+  it("projects each eye independently across the curved face surface", async () => {
     render(
       <div data-testid="stage">
         <Moodie
@@ -324,8 +325,10 @@ describe("Moodie", () => {
     expect(
       Number(face.getAttribute("data-left-eye-compression")),
     ).toBeGreaterThan(Number(face.getAttribute("data-right-eye-compression")));
-    expect(leftEye?.getAttribute("d")).not.toBe(centerLeft);
-    expect(rightEye?.getAttribute("d")).not.toBe(centerRight);
+    await waitFor(() => {
+      expect(leftEye?.getAttribute("d")).not.toBe(centerLeft);
+      expect(rightEye?.getAttribute("d")).not.toBe(centerRight);
+    });
     expect(face.querySelector("[data-part='eyes']")).toHaveAttribute(
       "clip-path",
       expect.stringContaining("moodie-surface"),
@@ -365,7 +368,12 @@ describe("Moodie", () => {
 
     const face = screen.getByRole("img");
     expect(face).toHaveAttribute("data-expression-motion", "true");
-    expect(face.querySelector("[data-part='expression-cue']")).not.toBeNull();
+    expect(
+      face.querySelector("[data-part='left-expression-cue']"),
+    ).not.toBeNull();
+    expect(
+      face.querySelector("[data-part='right-expression-cue']"),
+    ).not.toBeNull();
   });
 
   it("allows automatic expression performances to be disabled", () => {

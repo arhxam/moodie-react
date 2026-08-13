@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.3.2 — 2026-08-13
+
+- Synchronized left/right cursor tracking by restricting `expressionMotion.stagger` to expression-change choreography.
+- Changed edge foreshortening from whole-eye scaling to local compression of only the outward-facing contour shoulder.
+- Preserved the inward contour and localized volume compensation so rapid edge and corner poses stay stable.
+- Removed undefined SVG path interpolation during initial render for clean first-frame animation and browser consoles.
+
 ## 0.3.1 — 2026-08-13
 
 - Softened compounded edge deformation so eyes retain an attractive capsule shape at strong horizontal, vertical, and diagonal gaze.

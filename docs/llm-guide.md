@@ -182,8 +182,8 @@ Coordinates use a `0 0 200 200` viewBox. Typical left/right eye centers are x=72
 - SSR: server markup is safe; browser-only behavior begins in effects.
 - CSS sizing: use `size="100%"` inside a constrained square wrapper for responsive cards.
 - Canvas tracking: `pointer.target="parent"` listens on the immediate parent. Give that wrapper explicit dimensions and keep unrelated interactive controls outside it.
-- Surface realism: keep `surface` enabled for dimensional movement. Increase `edgeCompression` and `maxTurn` for a pronounced demo; raise `volumePreservation` when strong edge compression should retain more eye weight; lower `bodyFollow` for a clearer eyes-lead/body-follows effect. Disable it when a deliberately flat sticker motion is desired.
-- Expression choreography: `anticipation` and `overshoot` control the visual punctuation of state changes; `stagger` delays the right eye in milliseconds. Use lower values for dense productivity UI and higher values for hero demos.
+- Surface realism: keep `surface` enabled for dimensional movement. `edgeCompression` locally foreshortens only the outward-facing contour shoulder, not the whole eye. Increase it and `maxTurn` for a pronounced demo; raise `volumePreservation` when that contour should retain more eye weight; lower `bodyFollow` for a clearer eyes-lead/body-follows effect. Disable the surface when a deliberately flat sticker motion is desired.
+- Expression choreography: `anticipation` and `overshoot` control the visual punctuation of state changes; `stagger` delays the right expression cue in milliseconds without delaying cursor tracking. Use lower values for dense productivity UI and higher values for hero demos.
 - Right-click blink: `eyeMotion.contextMenuBlink` prevents the context menu only on the configured tracking surface. Disable it when that surface needs native context-menu behavior.
 - Imperative eye cue: `ref.current?.animateEyes("wide")` plays one of the five built-in micro-performances.
 - The package has a peer dependency on `motion`; install it explicitly.
