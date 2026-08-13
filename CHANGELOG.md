@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.5.1 — 2026-08-14
+
+- Tuned the landing playground for a stable recording sequence with a longer circular-face lead-in and extended cursor-control pause.
+- Made the first double-right-click body conversion land directly on square while preserving the normal single-right-click blink.
+- Added a demo-only fitted-eye square arrival that rolls right and settles through a damped tremble before handing control to manual mode.
+
 ## 0.5.0 — 2026-08-13
 
 - Added an authored playground showcase that continuously demonstrates gaze, expressions, body forms, eye scale and spacing, vivid palettes, and secondary eye performances without requiring hover.
