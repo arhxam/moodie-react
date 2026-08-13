@@ -419,6 +419,22 @@ export function ConfigInspector({
           />
         </ControlRow>
         <ControlRow
+          label="Volume preservation"
+          value={config.surfaceVolumePreservation.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Surface volume preservation"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.surfaceVolumePreservation]}
+            onValueChange={([value]) =>
+              update("surfaceVolumePreservation", value)
+            }
+          />
+        </ControlRow>
+        <ControlRow
           label="Body follow"
           value={config.bodyFollow.toFixed(2)}
           vertical

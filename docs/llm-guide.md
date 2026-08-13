@@ -84,6 +84,7 @@ export function StatusMood({ status }: { status: Status }) {
         bodyFollow: 0.28,
         inertia: 0.4,
         maxTurn: 42,
+        volumePreservation: 0.45,
       }}
       eyeMotion={{
         idle: status === "idle",
@@ -133,7 +134,7 @@ const [expression, setExpression] = useState("curious");
 - `expressionMotion?: boolean | { enabled?: boolean; intensity?: number; duration?: number; eyes?: boolean; body?: boolean; anticipation?: number; overshoot?: number; stagger?: number }`
 - `blink?: boolean | { enabled?: boolean; interval?: [minMs, maxMs]; duration?: ms }`
 - `pointer?: boolean | { enabled?: boolean; target?: "self" | "parent"; strength?: number; rangeX?: number; rangeY?: number; tilt?: number }`
-- `surface?: boolean | { enabled?: boolean; perspective?: number; edgeCompression?: number; depth?: number; bodyFollow?: number; inertia?: number; maxTurn?: number }`
+- `surface?: boolean | { enabled?: boolean; perspective?: number; edgeCompression?: number; depth?: number; bodyFollow?: number; inertia?: number; maxTurn?: number; volumePreservation?: number }`
 - `eyeMotion?: boolean | { enabled?: boolean; idle?: boolean; idleAnimations?: ("notice" | "glance" | "squint" | "wide" | "flutter")[]; interval?: [minMs, maxMs]; intensity?: number; hover?: "notice" | "glance" | "squint" | "wide" | "flutter" | "none"; hoverReaction?: "bounce" | "squash" | "tilt" | "spin" | "none"; contextMenuBlink?: boolean }`
 - `auto?: boolean | { enabled?: boolean; expressions?: string[]; interval?: [minMs, maxMs] }`
 - `gaze?: { x: number; y: number } | false` where coordinates are normalized −1 to 1
@@ -181,7 +182,7 @@ Coordinates use a `0 0 200 200` viewBox. Typical left/right eye centers are x=72
 - SSR: server markup is safe; browser-only behavior begins in effects.
 - CSS sizing: use `size="100%"` inside a constrained square wrapper for responsive cards.
 - Canvas tracking: `pointer.target="parent"` listens on the immediate parent. Give that wrapper explicit dimensions and keep unrelated interactive controls outside it.
-- Surface realism: keep `surface` enabled for dimensional movement. Increase `edgeCompression` and `maxTurn` for a pronounced demo; lower `bodyFollow` for a clearer eyes-lead/body-follows effect. Disable it when a deliberately flat sticker motion is desired.
+- Surface realism: keep `surface` enabled for dimensional movement. Increase `edgeCompression` and `maxTurn` for a pronounced demo; raise `volumePreservation` when strong edge compression should retain more eye weight; lower `bodyFollow` for a clearer eyes-lead/body-follows effect. Disable it when a deliberately flat sticker motion is desired.
 - Expression choreography: `anticipation` and `overshoot` control the visual punctuation of state changes; `stagger` delays the right eye in milliseconds. Use lower values for dense productivity UI and higher values for hero demos.
 - Right-click blink: `eyeMotion.contextMenuBlink` prevents the context menu only on the configured tracking surface. Disable it when that surface needs native context-menu behavior.
 - Imperative eye cue: `ref.current?.animateEyes("wide")` plays one of the five built-in micro-performances.

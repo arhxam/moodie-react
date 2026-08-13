@@ -39,6 +39,7 @@ export type PlaygroundConfig = {
   bodyFollow: number;
   surfaceInertia: number;
   maxTurn: number;
+  surfaceVolumePreservation: number;
   eyeMotion: boolean;
   idleEyeMotion: boolean;
   hoverEyeMotion: EyeAnimationName | "none";
@@ -70,7 +71,7 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   bodyPerformance: true,
   expressionAnticipation: 0.35,
   expressionOvershoot: 0.25,
-  eyeStagger: 35,
+  eyeStagger: 22,
   pointer: true,
   pointerTarget: "parent",
   pointerStrength: 1.35,
@@ -84,6 +85,7 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   bodyFollow: 0.28,
   surfaceInertia: 0.4,
   maxTurn: 42,
+  surfaceVolumePreservation: 0.45,
   eyeMotion: true,
   idleEyeMotion: true,
   hoverEyeMotion: "notice",
@@ -159,7 +161,7 @@ export function StatusFace() {
       motion="${config.motion}"
       spring={{ stiffness: ${config.stiffness}, damping: ${config.damping}, mass: ${config.mass} }}
       pointer={{ enabled: ${config.pointer}, target: "${config.pointerTarget}", strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
-      surface={{ enabled: ${config.surface}, perspective: ${formatNumber(config.surfacePerspective)}, edgeCompression: ${formatNumber(config.edgeCompression)}, depth: ${formatNumber(config.surfaceDepth)}, bodyFollow: ${formatNumber(config.bodyFollow)}, inertia: ${formatNumber(config.surfaceInertia)}, maxTurn: ${formatNumber(config.maxTurn)} }}
+      surface={{ enabled: ${config.surface}, perspective: ${formatNumber(config.surfacePerspective)}, edgeCompression: ${formatNumber(config.edgeCompression)}, depth: ${formatNumber(config.surfaceDepth)}, bodyFollow: ${formatNumber(config.bodyFollow)}, inertia: ${formatNumber(config.surfaceInertia)}, maxTurn: ${formatNumber(config.maxTurn)}, volumePreservation: ${formatNumber(config.surfaceVolumePreservation)} }}
       eyeMotion={{ enabled: ${config.eyeMotion}, idle: ${config.idleEyeMotion}, hover: "${config.hoverEyeMotion}", hoverReaction: "${config.hoverReaction}", contextMenuBlink: ${config.contextMenuBlink}, intensity: ${formatNumber(config.eyeMotionIntensity)}, interval: [${config.eyeMotionIntervalMin}, ${config.eyeMotionIntervalMax}] }}
       blink={${config.blink}}
       auto={${config.auto}}
@@ -191,6 +193,7 @@ export function createJson(config: PlaygroundConfig) {
     bodyFollow,
     surfaceInertia,
     maxTurn,
+    surfaceVolumePreservation,
     eyeMotion,
     idleEyeMotion,
     hoverEyeMotion,
@@ -230,6 +233,7 @@ export function createJson(config: PlaygroundConfig) {
         bodyFollow,
         inertia: surfaceInertia,
         maxTurn,
+        volumePreservation: surfaceVolumePreservation,
       },
       eyeMotion: {
         enabled: eyeMotion,

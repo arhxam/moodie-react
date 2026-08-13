@@ -62,6 +62,7 @@ Or uncontrolled mode:
     bodyFollow: 0.28,
     inertia: 0.4,
     maxTurn: 42,
+    volumePreservation: 0.45,
   }}
   eyeMotion={{
     enabled: true,
@@ -91,9 +92,9 @@ Eye motion is layered independently from gaze, expression morphs, and blinking. 
 
 ### Surface realism
 
-Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, each eye compresses along the direction of travel; horizontal gaze narrows width, vertical gaze shortens height, and diagonal gaze blends both axes. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion.
+Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, each eye compresses along the direction of travel; horizontal gaze narrows width, vertical gaze shortens height, and diagonal gaze blends both axes. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion. `volumePreservation` adds a subtle bounded expansion across the tangent axis so strong gaze retains appealing visual weight.
 
-`perspective`, `edgeCompression`, `depth`, `bodyFollow`, and `inertia` use a normalized range of `0` to `1` in typical use. `perspective` accepts up to `2` for a deliberately exaggerated demo, and `maxTurn` accepts `0` to `70` degrees. Pass `surface={false}` for the original flat translation behavior while retaining gaze tracking.
+`perspective`, `edgeCompression`, `depth`, `bodyFollow`, `inertia`, and `volumePreservation` use a normalized range of `0` to `1` in typical use. `perspective` accepts up to `2` for a deliberately exaggerated demo, and `maxTurn` accepts `0` to `70` degrees. Pass `surface={false}` for the original flat translation behavior while retaining gaze tracking.
 
 ## Motion
 
@@ -106,7 +107,7 @@ Surface projection makes the eye geometry behave as if it is attached to a round
     duration: 620,
     anticipation: 0.35,
     overshoot: 0.25,
-    stagger: 35,
+    stagger: 22,
   }}
 />
 ```
@@ -182,4 +183,4 @@ ref.current?.setExpression("alert");
 
 All standard SVG props except the conflicting native `color` definition are forwarded.
 
-Useful runtime attributes include `data-pointer-target`, `data-surface-enabled`, `data-left-eye-compression`, `data-right-eye-compression`, `data-hovered`, `data-eye-motion`, and `data-eye-animation`. Reduced motion suppresses automatic idle and hover performances while preserving stable geometry and explicit application state.
+Useful runtime attributes include `data-pointer-target`, `data-surface-enabled`, `data-surface-volume-preservation`, `data-left-eye-compression`, `data-right-eye-compression`, `data-hovered`, `data-eye-motion`, and `data-eye-animation`. Reduced motion suppresses automatic idle and hover performances while preserving stable geometry and explicit application state.
