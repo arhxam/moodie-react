@@ -875,7 +875,6 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
               initial={false}
               animate={{
                 d: bodyPath,
-                fill: color,
                 rotate: definition.body?.rotate ?? 0,
                 scaleX: (definition.body?.scaleX ?? 1) * (flip ? -1 : 1),
                 scaleY: definition.body?.scaleY ?? 1,
