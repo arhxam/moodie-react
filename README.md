@@ -5,9 +5,9 @@
 
 Give your interface a little life.
 
-Moodie is a small, deeply configurable animated face for React. It renders topology-compatible SVG paths and animates them with spring physics, so expression changes feel fluid without canvas, image assets, or a timeline editor.
+Moodie is a small, deeply configurable animated face for React. It projects topology-compatible SVG eyes across a curved face surface and animates them with spring physics, so gaze and expression changes feel dimensional without canvas, image assets, or a timeline editor.
 
-**[Open the live playground](https://moodie-react.vercel.app)** · **[Read the LLM guide](docs/llm-guide.md)**
+**[Open the live playground](https://moodie.arhamamin.com)** · **[Read the LLM guide](docs/llm-guide.md)**
 
 Install the package directly from the latest GitHub release:
 
@@ -39,6 +39,7 @@ export function LoadingState() {
 - Five body shapes and fully configurable CSS colors
 - Pointer-following gaze, automatic blinking, and expression cycling
 - Face-only or parent-canvas gaze with configurable sensitivity, travel, and tilt
+- Curved-surface projection with edge compression, depth, body follow, and inertia
 - Natural notice, glance, squint, widen, and flutter eye performances
 - Configurable hover recognition, idle micro-motion, and right-click blinking
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
@@ -80,7 +81,13 @@ The demo opens at `http://localhost:5173` by default.
   size={240}
   motion="spring"
   spring={{ stiffness: 210, damping: 22, mass: 0.8 }}
-  expressionMotion={{ intensity: 1.35, duration: 620 }}
+  expressionMotion={{
+    intensity: 1.35,
+    duration: 620,
+    anticipation: 0.35,
+    overshoot: 0.25,
+    stagger: 35,
+  }}
   pointer={{
     enabled: true,
     target: "parent",
@@ -88,6 +95,14 @@ The demo opens at `http://localhost:5173` by default.
     rangeX: 18,
     rangeY: 12,
     tilt: 3,
+  }}
+  surface={{
+    perspective: 1,
+    edgeCompression: 0.82,
+    depth: 0.65,
+    bodyFollow: 0.28,
+    inertia: 0.4,
+    maxTurn: 42,
   }}
   eyeMotion={{
     idle: true,
@@ -109,7 +124,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.2.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.3.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 

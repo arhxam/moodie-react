@@ -19,7 +19,7 @@
 - Modify \`packages/moodie/src/expression-motion.ts\`: configurable anticipation, overshoot, and stagger.
 - Modify \`packages/moodie/src/moodie.tsx\`: projected paths, separate inertia, clipping, diagnostics, and new prop.
 - Modify \`packages/moodie/src/index.ts\`: export the additive public types and helpers.
-- Modify \`packages/moodie/test/*.test.*\`: component, config, public API, and transition regressions.
+- Modify \`packages/moodie/test/_.test._\`: component, config, public API, and transition regressions.
 - Modify \`apps/demo/src/lib/playground.ts\`: demo state plus generated React/JSON.
 - Modify \`apps/demo/src/components/playground/config-inspector.tsx\`: controls inside existing groups.
 - Modify \`apps/demo/src/components/playground/playground.tsx\`: pass configured surface and choreography.
@@ -50,13 +50,13 @@ Expose \`createEyePoints()\` from geometry, implement \`SurfaceConfig\`, \`DEFAU
 
 \`\`\`ts
 export type SurfaceConfig = {
-  enabled: boolean;
-  perspective: number;
-  edgeCompression: number;
-  depth: number;
-  bodyFollow: number;
-  inertia: number;
-  maxTurn: number;
+enabled: boolean;
+perspective: number;
+edgeCompression: number;
+depth: number;
+bodyFollow: number;
+inertia: number;
+maxTurn: number;
 };
 \`\`\`
 

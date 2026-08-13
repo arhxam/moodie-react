@@ -1,6 +1,6 @@
 {
   "name": "@moodie/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A tiny, deeply configurable animated face for React.",
   "license": "MIT",
   "type": "module",
@@ -40,7 +40,7 @@
     "type": "git",
     "url": "git+https://github.com/arhxam/moodie-react.git"
   },
-  "homepage": "https://moodie-react.vercel.app",
+  "homepage": "https://moodie.arhamamin.com",
   "bugs": {
     "url": "https://github.com/arhxam/moodie-react/issues"
   }

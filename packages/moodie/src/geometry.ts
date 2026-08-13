@@ -72,7 +72,7 @@ export function createClosedPath(
   return `${path}Z`;
 }
 
-export function createEyePath(geometry: EyeGeometry = {}): string {
+export function createEyePoints(geometry: EyeGeometry = {}): Point[] {
   const centerX = clamp(geometry.x, -100, 300, 0);
   const centerY = clamp(geometry.y, -100, 300, 0);
   const width = clamp(geometry.width, 2, 120, 24);
@@ -82,7 +82,7 @@ export function createEyePath(geometry: EyeGeometry = {}): string {
   const skew = clamp(geometry.skew, -1, 1, 0);
   const exponent = 2 + curve * 2.4;
 
-  const points = Array.from({ length: EYE_POINTS }, (_, index): Point => {
+  return Array.from({ length: EYE_POINTS }, (_, index): Point => {
     const angle = (index / EYE_POINTS) * Math.PI * 2;
     const cosine = Math.cos(angle);
     const sine = Math.sin(angle);
@@ -96,8 +96,11 @@ export function createEyePath(geometry: EyeGeometry = {}): string {
     const [rotatedX, rotatedY] = rotatePoint(localX, localY, rotation);
     return [round(centerX + rotatedX), round(centerY + rotatedY)];
   });
+}
 
-  return createClosedPath(points, 0.82 + curve * 0.12);
+export function createEyePath(geometry: EyeGeometry = {}): string {
+  const curve = clamp(geometry.curve, 0, 1, 0.78);
+  return createClosedPath(createEyePoints(geometry), 0.82 + curve * 0.12);
 }
 
 export function createShapePath(shape: ShapeName | string = "circle"): string {

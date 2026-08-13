@@ -21,7 +21,10 @@ describe("playground exporters", () => {
       'eyeMotion={{ enabled: true, idle: true, hover: "notice", hoverReaction: "tilt", contextMenuBlink: true, intensity: 1, interval: [2400, 5200] }}',
     );
     expect(code).toContain(
-      "expressionMotion={{ intensity: 1.35, duration: 620, eyes: true, body: true }}",
+      "surface={{ enabled: true, perspective: 1, edgeCompression: 0.82, depth: 0.65, bodyFollow: 0.28, inertia: 0.4, maxTurn: 42 }}",
+    );
+    expect(code).toContain(
+      "expressionMotion={{ intensity: 1.35, duration: 620, eyes: true, body: true, anticipation: 0.35, overshoot: 0.25, stagger: 35 }}",
     );
   });
 
@@ -48,11 +51,23 @@ describe("playground exporters", () => {
       intensity: 1,
       interval: [2400, 5200],
     });
+    expect(parsed.surface).toEqual({
+      enabled: true,
+      perspective: 1,
+      edgeCompression: 0.82,
+      depth: 0.65,
+      bodyFollow: 0.28,
+      inertia: 0.4,
+      maxTurn: 42,
+    });
     expect(parsed.expressionMotion).toEqual({
       intensity: 1.35,
       duration: 620,
       eyes: true,
       body: true,
+      anticipation: 0.35,
+      overshoot: 0.25,
+      stagger: 35,
     });
   });
 });

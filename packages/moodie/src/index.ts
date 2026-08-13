@@ -46,10 +46,24 @@ export type {
 export {
   createClosedPath,
   createEyePath,
+  createEyePoints,
   createShapePath,
   pathCommandCount,
 } from "./geometry";
 export type { EyeGeometry, Point, ShapeName } from "./geometry";
+
+export {
+  DEFAULT_SURFACE_CONFIG,
+  curvedTravel,
+  normalizeSurface,
+  projectEyeOnSurface,
+} from "./surface-projection";
+export type {
+  ProjectEyeInput,
+  ProjectedEye,
+  SurfaceConfig,
+  SurfaceGaze,
+} from "./surface-projection";
 
 export {
   DEFAULT_CONFIG,

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-08-13
+
+- Added curved-surface eye projection with radial edge compression, near/far depth scaling, directional turn, and silhouette clipping.
+- Added configurable body follow, separate eye/body inertia, perspective strength, edge compression, depth, and maximum turn.
+- Upgraded expression changes to a five-stage anticipation, arrival, overshoot, and settle performance with configurable eye staggering.
+- Added synchronized surface-realism and expression-performance controls to the playground, React output, JSON output, public API, and LLM guide.
+- Hardened extreme-gaze geometry so rapid cursor reversals remain finite, bounded, topology-compatible, and free of visible deformation.
+
 ## 0.2.0 — 2026-08-13
 
 - Added smooth notice, glance, squint, wide, and flutter eye micro-performances.

@@ -23,12 +23,22 @@ export type PlaygroundConfig = {
   expressionDuration: number;
   eyePerformance: boolean;
   bodyPerformance: boolean;
+  expressionAnticipation: number;
+  expressionOvershoot: number;
+  eyeStagger: number;
   pointer: boolean;
   pointerTarget: PointerTrackingTarget;
   pointerStrength: number;
   pointerRangeX: number;
   pointerRangeY: number;
   pointerTilt: number;
+  surface: boolean;
+  surfacePerspective: number;
+  edgeCompression: number;
+  surfaceDepth: number;
+  bodyFollow: number;
+  surfaceInertia: number;
+  maxTurn: number;
   eyeMotion: boolean;
   idleEyeMotion: boolean;
   hoverEyeMotion: EyeAnimationName | "none";
@@ -58,12 +68,22 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   expressionDuration: 620,
   eyePerformance: true,
   bodyPerformance: true,
+  expressionAnticipation: 0.35,
+  expressionOvershoot: 0.25,
+  eyeStagger: 35,
   pointer: true,
   pointerTarget: "parent",
   pointerStrength: 1.35,
   pointerRangeX: 18,
   pointerRangeY: 12,
   pointerTilt: 3,
+  surface: true,
+  surfacePerspective: 1,
+  edgeCompression: 0.82,
+  surfaceDepth: 0.65,
+  bodyFollow: 0.28,
+  surfaceInertia: 0.4,
+  maxTurn: 42,
   eyeMotion: true,
   idleEyeMotion: true,
   hoverEyeMotion: "notice",
@@ -139,13 +159,14 @@ export function StatusFace() {
       motion="${config.motion}"
       spring={{ stiffness: ${config.stiffness}, damping: ${config.damping}, mass: ${config.mass} }}
       pointer={{ enabled: ${config.pointer}, target: "${config.pointerTarget}", strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
+      surface={{ enabled: ${config.surface}, perspective: ${formatNumber(config.surfacePerspective)}, edgeCompression: ${formatNumber(config.edgeCompression)}, depth: ${formatNumber(config.surfaceDepth)}, bodyFollow: ${formatNumber(config.bodyFollow)}, inertia: ${formatNumber(config.surfaceInertia)}, maxTurn: ${formatNumber(config.maxTurn)} }}
       eyeMotion={{ enabled: ${config.eyeMotion}, idle: ${config.idleEyeMotion}, hover: "${config.hoverEyeMotion}", hoverReaction: "${config.hoverReaction}", contextMenuBlink: ${config.contextMenuBlink}, intensity: ${formatNumber(config.eyeMotionIntensity)}, interval: [${config.eyeMotionIntervalMin}, ${config.eyeMotionIntervalMax}] }}
       blink={${config.blink}}
       auto={${config.auto}}
       eyeScale={${formatNumber(config.eyeScale)}}
       eyeDistance={${formatNumber(config.eyeDistance)}}
       gazeLimit={${formatNumber(config.gazeLimit)}}
-      expressionMotion={{ intensity: ${formatNumber(config.expressiveness)}, duration: ${config.expressionDuration}, eyes: ${config.eyePerformance}, body: ${config.bodyPerformance} }}
+      expressionMotion={{ intensity: ${formatNumber(config.expressiveness)}, duration: ${config.expressionDuration}, eyes: ${config.eyePerformance}, body: ${config.bodyPerformance}, anticipation: ${formatNumber(config.expressionAnticipation)}, overshoot: ${formatNumber(config.expressionOvershoot)}, stagger: ${config.eyeStagger} }}
       clickAction="random"
     />
   );
@@ -163,6 +184,13 @@ export function createJson(config: PlaygroundConfig) {
     pointerRangeX,
     pointerRangeY,
     pointerTilt,
+    surface,
+    surfacePerspective,
+    edgeCompression,
+    surfaceDepth,
+    bodyFollow,
+    surfaceInertia,
+    maxTurn,
     eyeMotion,
     idleEyeMotion,
     hoverEyeMotion,
@@ -177,6 +205,9 @@ export function createJson(config: PlaygroundConfig) {
     expressionDuration,
     eyePerformance,
     bodyPerformance,
+    expressionAnticipation,
+    expressionOvershoot,
+    eyeStagger,
     ...visual
   } = config;
   return JSON.stringify(
@@ -190,6 +221,15 @@ export function createJson(config: PlaygroundConfig) {
         rangeX: pointerRangeX,
         rangeY: pointerRangeY,
         tilt: pointerTilt,
+      },
+      surface: {
+        enabled: surface,
+        perspective: surfacePerspective,
+        edgeCompression,
+        depth: surfaceDepth,
+        bodyFollow,
+        inertia: surfaceInertia,
+        maxTurn,
       },
       eyeMotion: {
         enabled: eyeMotion,
@@ -207,6 +247,9 @@ export function createJson(config: PlaygroundConfig) {
         duration: expressionDuration,
         eyes: eyePerformance,
         body: bodyPerformance,
+        anticipation: expressionAnticipation,
+        overshoot: expressionOvershoot,
+        stagger: eyeStagger,
       },
     },
     null,

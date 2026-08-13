@@ -202,6 +202,48 @@ export function ConfigInspector({
             aria-label="Body performance"
           />
         </ControlRow>
+        <ControlRow
+          label="Anticipation"
+          value={config.expressionAnticipation.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Expression anticipation"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.expressionAnticipation]}
+            onValueChange={([value]) => update("expressionAnticipation", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Overshoot"
+          value={config.expressionOvershoot.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Expression overshoot"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.expressionOvershoot]}
+            onValueChange={([value]) => update("expressionOvershoot", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Eye stagger"
+          value={String(config.eyeStagger) + "ms"}
+          vertical
+        >
+          <Slider
+            aria-label="Eye transition stagger"
+            min={0}
+            max={120}
+            step={5}
+            value={[config.eyeStagger]}
+            onValueChange={([value]) => update("eyeStagger", value)}
+          />
+        </ControlRow>
         <ControlRow label="Stiffness" value={String(config.stiffness)} vertical>
           <Slider
             aria-label="Spring stiffness"
@@ -325,6 +367,97 @@ export function ConfigInspector({
             step={0.5}
             value={[config.pointerTilt]}
             onValueChange={([value]) => update("pointerTilt", value)}
+          />
+        </ControlRow>
+        <ControlRow label="Surface realism">
+          <Switch
+            checked={config.surface}
+            onCheckedChange={(value) => update("surface", value)}
+            aria-label="Surface realism"
+          />
+        </ControlRow>
+        <ControlRow
+          label="Perspective"
+          value={config.surfacePerspective.toFixed(2) + "×"}
+          vertical
+        >
+          <Slider
+            aria-label="Surface perspective"
+            min={0}
+            max={2}
+            step={0.05}
+            value={[config.surfacePerspective]}
+            onValueChange={([value]) => update("surfacePerspective", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Edge compression"
+          value={config.edgeCompression.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Edge compression"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.edgeCompression]}
+            onValueChange={([value]) => update("edgeCompression", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Surface depth"
+          value={config.surfaceDepth.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Surface depth"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.surfaceDepth]}
+            onValueChange={([value]) => update("surfaceDepth", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Body follow"
+          value={config.bodyFollow.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Body follow"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.bodyFollow]}
+            onValueChange={([value]) => update("bodyFollow", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Surface inertia"
+          value={config.surfaceInertia.toFixed(2)}
+          vertical
+        >
+          <Slider
+            aria-label="Surface inertia"
+            min={0}
+            max={1}
+            step={0.05}
+            value={[config.surfaceInertia]}
+            onValueChange={([value]) => update("surfaceInertia", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Maximum turn"
+          value={String(config.maxTurn) + "°"}
+          vertical
+        >
+          <Slider
+            aria-label="Maximum surface turn"
+            min={0}
+            max={70}
+            step={1}
+            value={[config.maxTurn]}
+            onValueChange={([value]) => update("maxTurn", value)}
           />
         </ControlRow>
         <ControlRow label="Auto blink">
