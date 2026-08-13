@@ -79,10 +79,23 @@ export function Playground() {
               }}
               pointer={{
                 enabled: config.pointer,
+                target: config.pointerTarget,
                 strength: config.pointerStrength,
                 rangeX: config.pointerRangeX,
                 rangeY: config.pointerRangeY,
                 tilt: config.pointerTilt,
+              }}
+              eyeMotion={{
+                enabled: config.eyeMotion,
+                idle: config.idleEyeMotion,
+                hover: config.hoverEyeMotion,
+                hoverReaction: config.hoverReaction,
+                contextMenuBlink: config.contextMenuBlink,
+                intensity: config.eyeMotionIntensity,
+                interval: [
+                  config.eyeMotionIntervalMin,
+                  config.eyeMotionIntervalMax,
+                ],
               }}
               blink={config.blink}
               auto={
@@ -100,12 +113,13 @@ export function Playground() {
                 body: config.bodyPerformance,
               }}
               clickAction="random"
-              ariaLabel={`Animated ${config.expression} face. Click to randomize.`}
+              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, or right-click to blink.`}
             />
           </div>
           <div className="stage-actions">
             <div className="stage-hint">
-              <MousePointer2Icon /> Move to look · click to change
+              <MousePointer2Icon /> Enter to track · hover to react ·
+              right-click to blink
             </div>
             <Tooltip>
               <TooltipTrigger asChild>

@@ -67,9 +67,23 @@ export function StatusMood({ status }: { status: Status }) {
       eyeColor="var(--brand-accent-foreground)"
       pointer={
         status === "idle"
-          ? { enabled: true, strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }
+          ? {
+              enabled: true,
+              target: "parent",
+              strength: 1.35,
+              rangeX: 18,
+              rangeY: 12,
+              tilt: 3,
+            }
           : false
       }
+      eyeMotion={{
+        idle: status === "idle",
+        idleAnimations: ["glance", "squint", "flutter"],
+        hover: "notice",
+        hoverReaction: "tilt",
+        contextMenuBlink: true,
+      }}
       blink
       motion={status === "success" ? "bouncy" : "spring"}
     />
@@ -110,7 +124,8 @@ const [expression, setExpression] = useState("curious");
 - `spring?: { stiffness?: number; damping?: number; mass?: number }`
 - `expressionMotion?: boolean | { enabled?: boolean; intensity?: number; duration?: number; eyes?: boolean; body?: boolean }`
 - `blink?: boolean | { enabled?: boolean; interval?: [minMs, maxMs]; duration?: ms }`
-- `pointer?: boolean | { enabled?: boolean; strength?: number; rangeX?: number; rangeY?: number; tilt?: number }`
+- `pointer?: boolean | { enabled?: boolean; target?: "self" | "parent"; strength?: number; rangeX?: number; rangeY?: number; tilt?: number }`
+- `eyeMotion?: boolean | { enabled?: boolean; idle?: boolean; idleAnimations?: ("notice" | "glance" | "squint" | "wide" | "flutter")[]; interval?: [minMs, maxMs]; intensity?: number; hover?: "notice" | "glance" | "squint" | "wide" | "flutter" | "none"; hoverReaction?: "bounce" | "squash" | "tilt" | "spin" | "none"; contextMenuBlink?: boolean }`
 - `auto?: boolean | { enabled?: boolean; expressions?: string[]; interval?: [minMs, maxMs] }`
 - `gaze?: { x: number; y: number } | false` where coordinates are normalized −1 to 1
 - `gazeLimit?: number`
@@ -156,6 +171,9 @@ Coordinates use a `0 0 200 200` viewBox. Typical left/right eye centers are x=72
 - Remix/React Router/Vite: import normally.
 - SSR: server markup is safe; browser-only behavior begins in effects.
 - CSS sizing: use `size="100%"` inside a constrained square wrapper for responsive cards.
+- Canvas tracking: `pointer.target="parent"` listens on the immediate parent. Give that wrapper explicit dimensions and keep unrelated interactive controls outside it.
+- Right-click blink: `eyeMotion.contextMenuBlink` prevents the context menu only on the configured tracking surface. Disable it when that surface needs native context-menu behavior.
+- Imperative eye cue: `ref.current?.animateEyes("wide")` plays one of the five built-in micro-performances.
 - The package has a peer dependency on `motion`; install it explicitly.
 
 ## Prompts for coding agents

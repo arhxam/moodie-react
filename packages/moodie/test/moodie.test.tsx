@@ -1,5 +1,11 @@
 import { createRef } from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Moodie, type MoodieHandle } from "../src/moodie";
@@ -9,6 +15,18 @@ afterEach(() => {
 });
 
 describe("Moodie", () => {
+  const rect = (width: number, height: number) => ({
+    x: 0,
+    y: 0,
+    top: 0,
+    left: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+    toJSON: () => ({}),
+  });
+
   it("renders an accessible, asset-free SVG face", () => {
     render(
       <Moodie expression="happy" color="#ff3366" ariaLabel="Friendly status" />,
@@ -114,6 +132,137 @@ describe("Moodie", () => {
     });
     expect(screen.getByRole("img")).toHaveAttribute("data-gaze-x", "0");
     expect(screen.getByRole("img")).toHaveAttribute("data-gaze-y", "0");
+  });
+
+  it("tracks and recenters from its parent canvas", () => {
+    render(
+      <div data-testid="stage">
+        <Moodie
+          pointer={{ enabled: true, target: "parent", strength: 1 }}
+          eyeMotion={false}
+          blink={false}
+        />
+      </div>,
+    );
+    const stage = screen.getByTestId("stage");
+    vi.spyOn(stage, "getBoundingClientRect").mockReturnValue(rect(400, 200));
+
+    fireEvent.pointerMove(stage, { clientX: 400, clientY: 0 });
+    expect(screen.getByRole("img")).toHaveAttribute("data-gaze-x", "1");
+    expect(screen.getByRole("img")).toHaveAttribute("data-gaze-y", "-1");
+
+    fireEvent.pointerLeave(stage);
+    expect(screen.getByRole("img")).toHaveAttribute("data-gaze-x", "0");
+    expect(screen.getByRole("img")).toHaveAttribute("data-gaze-y", "0");
+  });
+
+  it("notices parent-surface entry with composable eye and body cues", () => {
+    render(
+      <div data-testid="stage">
+        <Moodie
+          pointer={{ target: "parent" }}
+          eyeMotion={{ hover: "notice", hoverReaction: "tilt" }}
+          blink={false}
+        />
+      </div>,
+    );
+
+    const face = screen.getByRole("img");
+    fireEvent.pointerEnter(screen.getByTestId("stage"));
+    expect(face).toHaveAttribute("data-hovered", "false");
+
+    fireEvent.pointerEnter(face);
+    expect(face).toHaveAttribute("data-hovered", "true");
+    expect(face).toHaveAttribute("data-eye-animation", "notice");
+    expect(face.querySelector("[data-part='eye-performance']")).not.toBeNull();
+
+    fireEvent.pointerLeave(screen.getByTestId("stage"));
+    expect(face).toHaveAttribute("data-hovered", "false");
+  });
+
+  it("blinks on parent-surface right click without opening a context menu", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <div data-testid="stage">
+        <Moodie
+          pointer={{ target: "parent" }}
+          eyeMotion={{ contextMenuBlink: true }}
+          blink={{ enabled: false, duration: 100 }}
+        />
+      </div>,
+    );
+    const stage = screen.getByTestId("stage");
+    const contextMenu = createEvent.contextMenu(stage);
+
+    fireEvent(stage, contextMenu);
+    expect(contextMenu.defaultPrevented).toBe(true);
+    expect(screen.getByRole("img")).toHaveAttribute("data-blinking", "true");
+
+    act(() => vi.advanceTimersByTime(100));
+    expect(screen.getByRole("img")).toHaveAttribute("data-blinking", "false");
+
+    rerender(
+      <div data-testid="stage">
+        <Moodie
+          pointer={{ target: "parent" }}
+          eyeMotion={false}
+          blink={false}
+        />
+      </div>,
+    );
+    const disabledContextMenu = createEvent.contextMenu(stage);
+    fireEvent(stage, disabledContextMenu);
+    expect(disabledContextMenu.defaultPrevented).toBe(false);
+  });
+
+  it("exposes imperative eye animations and reduced-motion suppression", () => {
+    const ref = createRef<MoodieHandle>();
+    const { rerender } = render(<Moodie ref={ref} eyeMotion blink={false} />);
+
+    act(() => ref.current?.animateEyes("wide"));
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "wide",
+    );
+
+    rerender(
+      <Moodie
+        ref={ref}
+        eyeMotion={{ hover: "notice" }}
+        reducedMotion="always"
+        blink={false}
+      />,
+    );
+    fireEvent.pointerEnter(screen.getByRole("img"));
+    expect(screen.getByRole("img")).toHaveAttribute("data-eye-motion", "false");
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "none",
+    );
+  });
+
+  it("plays configured eye micro-animations while idle", () => {
+    vi.useFakeTimers();
+    render(
+      <Moodie
+        eyeMotion={{
+          idle: true,
+          idleAnimations: ["glance"],
+          interval: [500, 500],
+        }}
+        blink={false}
+      />,
+    );
+
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "none",
+    );
+    act(() => vi.advanceTimersByTime(500));
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "glance",
+    );
   });
 
   it("renders cursor movement in dedicated configurable layers", () => {

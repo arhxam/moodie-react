@@ -49,6 +49,11 @@ export function PresetGallery() {
               color={galleryColors[index % galleryColors.length]}
               size="100%"
               blink={expression === active}
+              eyeMotion={{
+                idle: false,
+                hover: "notice",
+                hoverReaction: "tilt",
+              }}
               pointer={{ enabled: true, strength: 0.65 }}
               motion="snappy"
               clickAction="react"

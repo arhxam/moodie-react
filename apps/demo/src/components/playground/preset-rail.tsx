@@ -31,6 +31,7 @@ export function PresetRail({
               size={54}
               color={selected === expression ? color : "#f1f1f1"}
               blink={false}
+              eyeMotion={false}
               pointer={false}
               motion="snappy"
               ariaLabel={`${expression} expression`}

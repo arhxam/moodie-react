@@ -43,7 +43,13 @@ const rows = [
     "pointer",
     "boolean | config",
     "true",
-    "Sensitivity, horizontal/vertical travel, cursor tilt, and enablement.",
+    "Face or parent-canvas tracking, sensitivity, travel, and cursor tilt.",
+  ],
+  [
+    "eyeMotion",
+    "boolean | config",
+    "true",
+    "Idle eye cues, hover recognition, intensity, cadence, and right-click blink.",
   ],
   [
     "blink / auto",
@@ -61,7 +67,7 @@ const rows = [
     "ref",
     "MoodieHandle",
     "—",
-    "Imperatively blink, react, lookAt, or setExpression.",
+    "Imperatively blink, animateEyes, react, lookAt, or setExpression.",
   ],
 ] as const;
 

@@ -3,7 +3,7 @@ import {
   DEFAULT_EXPRESSION_MOTION,
   type ExpressionMotionConfig,
 } from "./expression-motion";
-import type { ExpressionName } from "./presets";
+import type { ExpressionName, ReactionName } from "./presets";
 
 export type SpringConfig = {
   stiffness: number;
@@ -17,12 +17,36 @@ export type BlinkConfig = {
   duration: number;
 };
 
+export type PointerTrackingTarget = "self" | "parent";
+
 export type PointerConfig = {
   enabled: boolean;
+  target: PointerTrackingTarget;
   strength: number;
   rangeX: number;
   rangeY: number;
   tilt: number;
+};
+
+export const EYE_ANIMATION_NAMES = [
+  "notice",
+  "glance",
+  "squint",
+  "wide",
+  "flutter",
+] as const;
+
+export type EyeAnimationName = (typeof EYE_ANIMATION_NAMES)[number];
+
+export type EyeMotionConfig = {
+  enabled: boolean;
+  idle: boolean;
+  idleAnimations: readonly EyeAnimationName[];
+  interval: readonly [number, number];
+  intensity: number;
+  hover: EyeAnimationName | "none";
+  hoverReaction: ReactionName;
+  contextMenuBlink: boolean;
 };
 
 export type AutoConfig = {
@@ -40,6 +64,7 @@ export type MoodieConfig = {
   spring: SpringConfig;
   blink: BlinkConfig;
   pointer: PointerConfig;
+  eyeMotion: EyeMotionConfig;
   auto: AutoConfig;
   expressionMotion: ExpressionMotionConfig;
 };
@@ -54,10 +79,21 @@ export const DEFAULT_CONFIG: MoodieConfig = {
   blink: { enabled: true, interval: [2600, 6200], duration: 150 },
   pointer: {
     enabled: true,
+    target: "self",
     strength: 1.35,
     rangeX: 18,
     rangeY: 12,
     tilt: 3,
+  },
+  eyeMotion: {
+    enabled: true,
+    idle: true,
+    idleAnimations: ["glance", "squint", "flutter"],
+    interval: [2400, 5200],
+    intensity: 1,
+    hover: "notice",
+    hoverReaction: "tilt",
+    contextMenuBlink: true,
   },
   auto: { enabled: false, interval: [2400, 5200] },
   expressionMotion: { ...DEFAULT_EXPRESSION_MOTION },
@@ -109,6 +145,55 @@ export function normalizeBlink(
   };
 }
 
+const isEyeAnimation = (value: unknown): value is EyeAnimationName =>
+  EYE_ANIMATION_NAMES.includes(value as EyeAnimationName);
+
+const reactionNames: readonly ReactionName[] = [
+  "bounce",
+  "squash",
+  "tilt",
+  "spin",
+  "none",
+];
+
+export function normalizeEyeMotion(
+  config: boolean | Partial<EyeMotionConfig> = true,
+): EyeMotionConfig {
+  if (typeof config === "boolean")
+    return { ...DEFAULT_CONFIG.eyeMotion, enabled: config };
+  const requestedAnimations =
+    config.idleAnimations ?? DEFAULT_CONFIG.eyeMotion.idleAnimations;
+  const idleAnimations = [
+    ...new Set(requestedAnimations.filter(isEyeAnimation)),
+  ];
+  return {
+    enabled: config.enabled ?? true,
+    idle: config.idle ?? true,
+    idleAnimations:
+      idleAnimations.length > 0
+        ? idleAnimations
+        : DEFAULT_CONFIG.eyeMotion.idleAnimations,
+    interval: normalizeRange(
+      config.interval,
+      DEFAULT_CONFIG.eyeMotion.interval,
+    ),
+    intensity: clamp(
+      config.intensity,
+      0,
+      2,
+      DEFAULT_CONFIG.eyeMotion.intensity,
+    ),
+    hover:
+      isEyeAnimation(config.hover) || config.hover === "none"
+        ? config.hover
+        : DEFAULT_CONFIG.eyeMotion.hover,
+    hoverReaction: reactionNames.includes(config.hoverReaction as ReactionName)
+      ? (config.hoverReaction as ReactionName)
+      : DEFAULT_CONFIG.eyeMotion.hoverReaction,
+    contextMenuBlink: config.contextMenuBlink ?? true,
+  };
+}
+
 export function normalizePointer(
   config: boolean | Partial<PointerConfig> = true,
 ): PointerConfig {
@@ -116,6 +201,10 @@ export function normalizePointer(
     return { ...DEFAULT_CONFIG.pointer, enabled: config };
   return {
     enabled: config.enabled ?? true,
+    target:
+      config.target === "parent" || config.target === "self"
+        ? config.target
+        : DEFAULT_CONFIG.pointer.target,
     strength: clamp(config.strength, 0, 3, DEFAULT_CONFIG.pointer.strength),
     rangeX: clamp(config.rangeX, 0, 30, DEFAULT_CONFIG.pointer.rangeX),
     rangeY: clamp(config.rangeY, 0, 24, DEFAULT_CONFIG.pointer.rangeY),

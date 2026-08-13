@@ -306,7 +306,8 @@ a {
 .studio-preview {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
   border-right: 1px solid var(--border);
   background-image: radial-gradient(circle, #d9d9d9 1px, transparent 1px);
   background-size: 24px 24px;

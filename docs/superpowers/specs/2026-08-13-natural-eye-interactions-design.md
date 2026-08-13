@@ -8,7 +8,7 @@ Make Moodie feel attentive before it feels animated: gaze should begin when a po
 
 - `pointer.target` accepts `"self"` or `"parent"`. `"self"` preserves the existing package behavior; `"parent"` uses the SVG's immediate parent as the pointer surface.
 - The demo uses `pointer.target: "parent"`, so the full preview canvas drives gaze as soon as the cursor enters it.
-- Entering the tracking surface plays a configurable eye cue and optional body reaction. It does not unexpectedly change the selected expression.
+- Entering the tracking surface starts gaze immediately. Entering the face itself plays a configurable eye cue and optional body reaction without unexpectedly changing the selected expression.
 - Right-clicking the tracking surface triggers an explicit blink and suppresses the browser context menu when `contextMenuBlink` is enabled.
 - Leaving the surface smoothly returns gaze to center.
 - Explicit pointer, context-menu, and imperative interactions remain available even when automatic blinking or idle animation is disabled.

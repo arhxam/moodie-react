@@ -34,6 +34,9 @@ export {
   createReactionCue,
   normalizeExpressionMotion,
 } from "./expression-motion";
+
+export { createEyeAnimationCue } from "./eye-motion";
+export type { EyeAnimationCue } from "./eye-motion";
 export type {
   ExpressionCue,
   ExpressionMotionConfig,
@@ -52,13 +55,17 @@ export {
   DEFAULT_CONFIG,
   normalizeAuto,
   normalizeBlink,
+  normalizeEyeMotion,
   normalizePointer,
   normalizeSpring,
 } from "./config";
 export type {
   AutoConfig,
   BlinkConfig,
+  EyeAnimationName,
+  EyeMotionConfig,
   MoodieConfig,
   PointerConfig,
+  PointerTrackingTarget,
   SpringConfig,
 } from "./config";

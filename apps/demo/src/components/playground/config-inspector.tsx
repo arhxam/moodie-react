@@ -16,7 +16,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   BODY_SHAPES,
   DISPLAY_EXPRESSIONS,
+  EYE_ANIMATIONS,
+  HOVER_REACTIONS,
   MOTION_PRESETS,
+  POINTER_TARGETS,
   type PlaygroundConfig,
 } from "@/lib/playground";
 
@@ -241,6 +244,33 @@ export function ConfigInspector({
             aria-label="Pointer tracking"
           />
         </ControlRow>
+        <ControlRow label="Tracking area">
+          <Select
+            value={config.pointerTarget}
+            onValueChange={(value) =>
+              update(
+                "pointerTarget",
+                value as PlaygroundConfig["pointerTarget"],
+              )
+            }
+          >
+            <SelectTrigger
+              aria-label="Pointer tracking area"
+              className="w-full"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {POINTER_TARGETS.map((target) => (
+                  <SelectItem key={target} value={target}>
+                    {target === "parent" ? "full canvas" : "face only"}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ControlRow>
         <ControlRow
           label="Cursor sensitivity"
           value={`${config.pointerStrength.toFixed(2)}×`}
@@ -302,6 +332,117 @@ export function ConfigInspector({
             checked={config.blink}
             onCheckedChange={(value) => update("blink", value)}
             aria-label="Auto blink"
+          />
+        </ControlRow>
+        <ControlRow label="Eye reactions">
+          <Switch
+            checked={config.eyeMotion}
+            onCheckedChange={(value) => update("eyeMotion", value)}
+            aria-label="Eye reactions"
+          />
+        </ControlRow>
+        <ControlRow label="Idle eye motion">
+          <Switch
+            checked={config.idleEyeMotion}
+            onCheckedChange={(value) => update("idleEyeMotion", value)}
+            aria-label="Idle eye motion"
+          />
+        </ControlRow>
+        <ControlRow label="Hover eye cue">
+          <Select
+            value={config.hoverEyeMotion}
+            onValueChange={(value) =>
+              update(
+                "hoverEyeMotion",
+                value as PlaygroundConfig["hoverEyeMotion"],
+              )
+            }
+          >
+            <SelectTrigger aria-label="Hover eye cue" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {EYE_ANIMATIONS.map((animation) => (
+                  <SelectItem key={animation} value={animation}>
+                    {animation}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ControlRow>
+        <ControlRow label="Hover body cue">
+          <Select
+            value={config.hoverReaction}
+            onValueChange={(value) =>
+              update(
+                "hoverReaction",
+                value as PlaygroundConfig["hoverReaction"],
+              )
+            }
+          >
+            <SelectTrigger aria-label="Hover body cue" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {HOVER_REACTIONS.map((reaction) => (
+                  <SelectItem key={reaction} value={reaction}>
+                    {reaction}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ControlRow>
+        <ControlRow label="Right-click blink">
+          <Switch
+            checked={config.contextMenuBlink}
+            onCheckedChange={(value) => update("contextMenuBlink", value)}
+            aria-label="Right-click blink"
+          />
+        </ControlRow>
+        <ControlRow
+          label="Eye reaction strength"
+          value={`${config.eyeMotionIntensity.toFixed(2)}×`}
+          vertical
+        >
+          <Slider
+            aria-label="Eye reaction strength"
+            min={0}
+            max={2}
+            step={0.05}
+            value={[config.eyeMotionIntensity]}
+            onValueChange={([value]) => update("eyeMotionIntensity", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Idle delay min"
+          value={`${config.eyeMotionIntervalMin}ms`}
+          vertical
+        >
+          <Slider
+            aria-label="Minimum idle eye delay"
+            min={500}
+            max={config.eyeMotionIntervalMax}
+            step={100}
+            value={[config.eyeMotionIntervalMin]}
+            onValueChange={([value]) => update("eyeMotionIntervalMin", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Idle delay max"
+          value={`${config.eyeMotionIntervalMax}ms`}
+          vertical
+        >
+          <Slider
+            aria-label="Maximum idle eye delay"
+            min={config.eyeMotionIntervalMin}
+            max={12000}
+            step={100}
+            value={[config.eyeMotionIntervalMax]}
+            onValueChange={([value]) => update("eyeMotionIntervalMax", value)}
           />
         </ControlRow>
         <ControlRow label="Auto expressions">

@@ -163,7 +163,7 @@ Add separate tests proving:
 </div>
 ```
 
-tracks a pointer fired on the parent, recenters on leave, reports hover state, prevents `contextmenu` and blinks, exposes `animateEyes("wide")`, and suppresses hover performance under `reducedMotion="always"`.
+tracks a pointer fired on the parent, recenters on leave, keeps canvas entry distinct from face hover, prevents `contextmenu` and blinks, exposes `animateEyes("wide")`, and suppresses hover performance under `reducedMotion="always"`.
 
 ```ts
 vi.useFakeTimers();

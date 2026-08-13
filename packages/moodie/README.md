@@ -48,10 +48,21 @@ Or uncontrolled mode:
 <Moodie
   pointer={{
     enabled: true,
+    target: "parent",
     strength: 1.35,
     rangeX: 18,
     rangeY: 12,
     tilt: 3,
+  }}
+  eyeMotion={{
+    enabled: true,
+    idle: true,
+    idleAnimations: ["glance", "squint", "flutter"],
+    interval: [2400, 5200],
+    intensity: 1,
+    hover: "notice",
+    hoverReaction: "tilt",
+    contextMenuBlink: true,
   }}
   gazeLimit={1}
   blink={{ enabled: true, interval: [2200, 5600], duration: 140 }}
@@ -63,9 +74,11 @@ Or uncontrolled mode:
 />
 ```
 
-Boolean shorthands work for `pointer`, `blink`, and `auto`.
+Boolean shorthands work for `pointer`, `eyeMotion`, `blink`, and `auto`.
 
-`strength` controls how quickly gaze reaches its limit. `rangeX` and `rangeY` control eye travel in view-box units, while `tilt` adds a small directional lean to the face. Multiply the entire range with `gazeLimit` when one high-level control is preferable.
+`strength` controls how quickly gaze reaches its limit. `rangeX` and `rangeY` control eye travel in view-box units, while `tilt` adds a small directional lean to the face. Multiply the entire range with `gazeLimit` when one high-level control is preferable. `target: "parent"` makes the SVG's immediate parent the tracking surface, which is useful for cards and full preview canvases; `"self"` is the backward-compatible default.
+
+Eye motion is layered independently from gaze, expression morphs, and blinking. Built-in cues are `notice`, `glance`, `squint`, `wide`, and `flutter`. Canvas entry starts tracking immediately, while hovering the face can play both an eye cue and a body reaction without changing the selected expression. With `contextMenuBlink`, right-clicking the configured tracking surface blinks and suppresses the browser menu. Explicit right-click and imperative blinks work even when automatic blink cadence is disabled.
 
 ## Motion
 
@@ -120,6 +133,7 @@ const ref = useRef<MoodieHandle>(null);
 
 <Moodie ref={ref} />;
 ref.current?.blink();
+ref.current?.animateEyes("wide");
 ref.current?.lookAt({ x: 0.5, y: -0.2 });
 ref.current?.react("bounce");
 ref.current?.setExpression("alert");
@@ -138,9 +152,12 @@ ref.current?.setExpression("alert");
 | `motion`            | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
 | `expressionMotion`  | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
 | `pointer`           | `boolean \| PointerConfig`                              | `true`     |
+| `eyeMotion`         | `boolean \| Partial<EyeMotionConfig>`                   | `true`     |
 | `blink`             | `boolean \| BlinkConfig`                                | `true`     |
 | `auto`              | `boolean \| AutoConfig`                                 | `false`    |
 | `clickAction`       | `react \| cycle \| random \| none`                      | `react`    |
 | `reducedMotion`     | `system \| always \| never`                             | `system`   |
 
 All standard SVG props except the conflicting native `color` definition are forwarded.
+
+Useful runtime attributes include `data-pointer-target`, `data-hovered`, `data-eye-motion`, and `data-eye-animation`. Reduced motion suppresses automatic idle and hover performances while preserving stable geometry and explicit application state.
