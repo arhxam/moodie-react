@@ -44,6 +44,7 @@ export type {
 } from "./expression-motion";
 
 export {
+  SHAPE_NAMES,
   createClosedPath,
   createEyePath,
   createEyePoints,
@@ -67,6 +68,8 @@ export type {
 
 export {
   DEFAULT_CONFIG,
+  DEFAULT_EXPRESSION_EYE_TRIGGERS,
+  EYE_ANIMATION_NAMES,
   normalizeAuto,
   normalizeBlink,
   normalizeEyeMotion,
@@ -78,6 +81,7 @@ export type {
   BlinkConfig,
   EyeAnimationName,
   EyeMotionConfig,
+  ExpressionEyeTrigger,
   MoodieConfig,
   PointerConfig,
   PointerTrackingTarget,

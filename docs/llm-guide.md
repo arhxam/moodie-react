@@ -92,6 +92,11 @@ export function StatusMood({ status }: { status: Status }) {
         hover: "notice",
         hoverReaction: "tilt",
         contextMenuBlink: true,
+        expressionTriggers: {
+          cheeky: "roll",
+          surprised: "recoil",
+          sleepy: "droop",
+        },
       }}
       blink
       motion={status === "success" ? "bouncy" : "spring"}
@@ -121,7 +126,8 @@ const [expression, setExpression] = useState("curious");
 - `expressions?: Record<string, ExpressionDefinition>`
 - `expressionOrder?: readonly string[]`
 - `onExpressionChange?: (expression: string) => void`
-- `shape?: "circle" | "squircle" | "blob" | "pebble" | "diamond"`
+- `shape?: ShapeName` and `defaultShape?: ShapeName`, where `ShapeName` is `"circle" | "squircle" | "blob" | "pebble" | "diamond" | "oval" | "triangle" | "cloud" | "hexagon" | "square" | "drop"`
+- `shapeOrder?: readonly ShapeName[]`, `onShapeChange?: (shape: ShapeName) => void`, and `doubleContextShapeCycle?: boolean`
 - `color?: string`
 - `eyeColor?: string`
 - `size?: number | string`
@@ -135,7 +141,8 @@ const [expression, setExpression] = useState("curious");
 - `blink?: boolean | { enabled?: boolean; interval?: [minMs, maxMs]; duration?: ms }`
 - `pointer?: boolean | { enabled?: boolean; target?: "self" | "parent"; strength?: number; rangeX?: number; rangeY?: number; tilt?: number }`
 - `surface?: boolean | { enabled?: boolean; perspective?: number; edgeCompression?: number; depth?: number; bodyFollow?: number; inertia?: number; maxTurn?: number; volumePreservation?: number }`
-- `eyeMotion?: boolean | { enabled?: boolean; idle?: boolean; idleAnimations?: ("notice" | "glance" | "squint" | "wide" | "flutter")[]; interval?: [minMs, maxMs]; intensity?: number; hover?: "notice" | "glance" | "squint" | "wide" | "flutter" | "none"; hoverReaction?: "bounce" | "squash" | "tilt" | "spin" | "none"; contextMenuBlink?: boolean }`
+- `eyeMotion?: boolean | { enabled?: boolean; idle?: boolean; idleAnimations?: EyeAnimationName[]; interval?: [minMs, maxMs]; intensity?: number; hover?: EyeAnimationName | "none"; hoverReaction?: "bounce" | "squash" | "tilt" | "spin" | "none"; contextMenuBlink?: boolean; expressionTriggers?: Record<string, EyeAnimationName | "none"> }`
+- `EyeAnimationName` is `"notice" | "glance" | "squint" | "wide" | "flutter" | "roll" | "vanish" | "orbit" | "doubleTake" | "recoil" | "droop" | "shake"`.
 - `auto?: boolean | { enabled?: boolean; expressions?: string[]; interval?: [minMs, maxMs] }`
 - `gaze?: { x: number; y: number } | false` where coordinates are normalized −1 to 1
 - `gazeLimit?: number`
@@ -184,8 +191,11 @@ Coordinates use a `0 0 200 200` viewBox. Typical left/right eye centers are x=72
 - Canvas tracking: `pointer.target="parent"` listens on the immediate parent. Give that wrapper explicit dimensions and keep unrelated interactive controls outside it.
 - Surface realism: keep `surface` enabled for dimensional movement. `edgeCompression` locally foreshortens only the outward-facing contour shoulder, not the whole eye. Increase it and `maxTurn` for a pronounced demo; raise `volumePreservation` when that contour should retain more eye weight; lower `bodyFollow` for a clearer eyes-lead/body-follows effect. Disable the surface when a deliberately flat sticker motion is desired.
 - Expression choreography: `anticipation` and `overshoot` control the visual punctuation of state changes; `stagger` delays the right expression cue in milliseconds without delaying cursor tracking. Use lower values for dense productivity UI and higher values for hero demos.
-- Right-click blink: `eyeMotion.contextMenuBlink` prevents the context menu only on the configured tracking surface. Disable it when that surface needs native context-menu behavior.
-- Imperative eye cue: `ref.current?.animateEyes("wide")` plays one of the five built-in micro-performances.
+- Right-click gestures: one right-click blinks when `eyeMotion.contextMenuBlink` is enabled; with `doubleContextShapeCycle` enabled, a second within 420 ms cycles the shape. Use `defaultShape` for internal cycling or `shape` with `onShapeChange` for controlled cycling. Shape cycling is opt-in, and the context menu is prevented only on the configured tracking surface.
+- Secondary performances: defaults map `cheeky` to `roll`, `dizzy` to `orbit`, `surprised` to `recoil`, `sleepy` to `droop`, and `alert` to `doubleTake`. Override mappings per expression or use `"none"` to suppress one.
+- Imperative eye cue: `ref.current?.animateEyes("roll")` plays any built-in cue. A new call interrupts from the current rendered pose and every cue settles at neutral/full opacity.
+- Idle safety: keep disruptive cues such as `vanish`, `orbit`, and `shake` opt-in. The default idle list remains `glance`, `squint`, and `flutter`.
+- Typed catalogs: use the exported `EYE_ANIMATION_NAMES` and `DEFAULT_EXPRESSION_EYE_TRIGGERS` rather than duplicating names in reusable libraries.
 - The package has a peer dependency on `motion`; install it explicitly.
 
 ## Prompts for coding agents

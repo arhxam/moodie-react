@@ -17,9 +17,11 @@ import { Moodie } from "@moodie/react";
 ## Key capabilities
 
 - 16 expressions: neutral, happy, excited, sleepy, sad, worried, thinking, love, curious, surprised, focused, cheeky, dizzy, calm, wink, alert.
-- 5 shapes: circle, squircle, blob, pebble, diamond.
+- 11 shapes: circle, squircle, blob, pebble, diamond, oval, triangle, cloud, hexagon, square, drop.
 - Curved-surface eye projection with localized outward-contour compression, bounded volume preservation, near/far depth, body follow, and configurable inertia.
-- Spring/tween/path morph animation, anticipation/overshoot expression performances, parent-canvas gaze, hover recognition, idle eye choreography, and right-click blink.
+- Spring/tween/path morph animation, anticipation/overshoot expression performances, parent-canvas gaze, hover recognition, idle eye choreography, right-click blink, and double-right-click shape cycling.
+- 12 interruptible eye cues: notice, glance, squint, wide, flutter, roll, vanish, orbit, doubleTake, recoil, droop, and shake.
+- Configurable expression cue mappings with defaults for cheeky, dizzy, surprised, sleepy, and alert; any mapping can be disabled with `none`.
 - Controlled/uncontrolled state and imperative ref methods.
 - Custom normalized eye geometry.
 - SSR-safe and reduced-motion aware.
@@ -28,7 +30,7 @@ import { Moodie } from "@moodie/react";
 
 `MoodieProps`: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, eyeMotion, blink, pointer, surface, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
 
-Use `pointer={{ target: "parent" }}` to track across the immediate parent canvas. Both eyes track the pointer on the same frame; `expressionMotion.stagger` applies only when the expression changes. Configure `surface` with perspective, localized edge compression, volume preservation, depth, body follow, inertia, and maximum turn. Configure `eyeMotion` with idle animations, hover eye/body cues, intensity, cadence, and `contextMenuBlink`. Imperative refs expose `animateEyes("wide")`.
+Use `pointer={{ target: "parent" }}` to track across the immediate parent canvas. Both eyes track the pointer on the same frame; `expressionMotion.stagger` applies only when the expression changes. Configure `surface` with perspective, localized edge compression, volume preservation, depth, body follow, inertia, and maximum turn. Configure `eyeMotion` with idle animations, hover eye/body cues, intensity, cadence, `contextMenuBlink`, and `expressionTriggers`. Enable `doubleContextShapeCycle` and use `defaultShape`, or controlled `shape` plus `onShapeChange`, for double-right-click shape cycling. Imperative refs expose `animateEyes("roll")`; newer cues interrupt smoothly and settle fully. Keep `vanish` opt-in for idle choreography.
 
 Controlled interactive example:
 

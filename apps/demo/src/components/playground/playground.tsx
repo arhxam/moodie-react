@@ -1,6 +1,10 @@
-import { Moodie } from "@moodie/react";
+import {
+  Moodie,
+  type EyeAnimationName,
+  type MoodieHandle,
+} from "@moodie/react";
 import { MousePointer2Icon, ShuffleIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +13,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  BODY_SHAPES,
   DISPLAY_EXPRESSIONS,
+  EXPRESSION_EYE_TRIGGERS,
   INITIAL_CONFIG,
   type PlaygroundConfig,
 } from "@/lib/playground";
@@ -20,6 +26,9 @@ import { PresetRail } from "./preset-rail";
 
 export function Playground() {
   const [config, setConfig] = useState<PlaygroundConfig>(INITIAL_CONFIG);
+  const [previewEyeAnimation, setPreviewEyeAnimation] =
+    useState<EyeAnimationName>("roll");
+  const moodieRef = useRef<MoodieHandle>(null);
 
   const update = useCallback(
     <Key extends keyof PlaygroundConfig>(
@@ -40,6 +49,10 @@ export function Playground() {
       };
     });
   }, []);
+
+  const playPreviewEyeAnimation = useCallback(() => {
+    moodieRef.current?.animateEyes(previewEyeAnimation);
+  }, [previewEyeAnimation]);
 
   return (
     <section
@@ -62,12 +75,16 @@ export function Playground() {
           </div>
           <div className="face-stage">
             <Moodie
+              ref={moodieRef}
               expression={config.expression}
               onExpressionChange={(expression) =>
                 update("expression", expression)
               }
               expressionOrder={DISPLAY_EXPRESSIONS}
               shape={config.shape}
+              shapeOrder={BODY_SHAPES}
+              onShapeChange={(shape) => update("shape", shape)}
+              doubleContextShapeCycle
               color={config.color}
               eyeColor={config.eyeColor}
               size={config.size}
@@ -106,6 +123,7 @@ export function Playground() {
                   config.eyeMotionIntervalMin,
                   config.eyeMotionIntervalMax,
                 ],
+                expressionTriggers: EXPRESSION_EYE_TRIGGERS,
               }}
               blink={config.blink}
               auto={
@@ -126,13 +144,13 @@ export function Playground() {
                 stagger: config.eyeStagger,
               }}
               clickAction="random"
-              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, or right-click to blink.`}
+              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, right-click to blink, or double right-click to change shape.`}
             />
           </div>
           <div className="stage-actions">
             <div className="stage-hint">
               <MousePointer2Icon /> Enter to track · hover to react ·
-              right-click to blink
+              right-click to blink · double right-click to change shape
             </div>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -158,6 +176,9 @@ export function Playground() {
             update={update}
             randomize={randomize}
             reset={() => setConfig(INITIAL_CONFIG)}
+            previewEyeAnimation={previewEyeAnimation}
+            onPreviewEyeAnimationChange={setPreviewEyeAnimation}
+            onPlayEyeAnimation={playPreviewEyeAnimation}
           />
           <CodeOutput config={config} />
         </div>

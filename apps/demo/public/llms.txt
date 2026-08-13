@@ -15,13 +15,15 @@ import { Moodie } from "@moodie/react";
 
 Built-in expressions: neutral, happy, excited, sleepy, sad, worried, thinking, love, curious, surprised, focused, cheeky, dizzy, calm, wink, alert.
 
-Shapes: circle, squircle, blob, pebble, diamond.
+Shapes: circle, squircle, blob, pebble, diamond, oval, triangle, cloud, hexagon, square, drop.
 
-Expression changes combine body and eye performances. Eye motion also supports notice, glance, squint, wide, and flutter cues; parent-canvas tracking; hover recognition; idle choreography; and right-click blinking.
+Expression changes combine body and eye performances. Eye motion supports notice, glance, squint, wide, flutter, roll, vanish, orbit, doubleTake, recoil, droop, and shake cues; parent-canvas tracking; hover recognition; idle choreography; right-click blinking; and double-right-click shape cycling.
+
+Configure eyeMotion.expressionTriggers to map expressions to cues or `none`. Defaults include cheeky→roll, dizzy→orbit, surprised→recoil, sleepy→droop, and alert→doubleTake. Imperative refs expose animateEyes(cue); newer calls interrupt from the current pose and always settle at full opacity. Keep disruptive cues such as vanish opt-in for idle playback.
 
 Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, eyeMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
 
-Use pointer.target="parent" for full-canvas gaze and eyeMotion.contextMenuBlink for right-click blinking.
+Use pointer.target="parent" for full-canvas gaze, eyeMotion.contextMenuBlink for right-click blinking, and doubleContextShapeCycle with defaultShape (or controlled shape plus onShapeChange) for double-right-click shape cycling.
 
 Controlled interaction:
 

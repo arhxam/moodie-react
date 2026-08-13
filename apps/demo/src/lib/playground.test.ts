@@ -1,8 +1,68 @@
 import { describe, expect, it } from "vitest";
 
-import { INITIAL_CONFIG, createCode, createJson } from "./playground";
+import {
+  BODY_SHAPES,
+  DISPLAY_EXPRESSIONS,
+  EYE_PERFORMANCES,
+  EXPRESSION_EYE_TRIGGERS,
+  INITIAL_CONFIG,
+  createCode,
+  createJson,
+} from "./playground";
 
 describe("playground exporters", () => {
+  it("starts the preset rail with excited and leaves curious until last", () => {
+    expect(INITIAL_CONFIG.expression).toBe("excited");
+    expect(DISPLAY_EXPRESSIONS[0]).toBe("excited");
+    expect(DISPLAY_EXPRESSIONS.at(-1)).toBe("curious");
+  });
+
+  it("offers every built-in body shape and preserves new shapes in code", () => {
+    expect(BODY_SHAPES).toEqual([
+      "circle",
+      "squircle",
+      "blob",
+      "pebble",
+      "diamond",
+      "oval",
+      "triangle",
+      "cloud",
+      "hexagon",
+      "square",
+      "drop",
+    ]);
+    expect(createCode({ ...INITIAL_CONFIG, shape: "drop" })).toContain(
+      'defaultShape="drop"',
+    );
+    expect(createCode({ ...INITIAL_CONFIG, shape: "drop" })).toContain(
+      "doubleContextShapeCycle",
+    );
+  });
+
+  it("offers every secondary eye performance in the live launcher", () => {
+    expect(EYE_PERFORMANCES).toEqual([
+      "notice",
+      "glance",
+      "squint",
+      "wide",
+      "flutter",
+      "roll",
+      "vanish",
+      "orbit",
+      "doubleTake",
+      "recoil",
+      "droop",
+      "shake",
+    ]);
+    expect(EXPRESSION_EYE_TRIGGERS).toEqual({
+      cheeky: "roll",
+      dizzy: "orbit",
+      surprised: "recoil",
+      sleepy: "droop",
+      alert: "doubleTake",
+    });
+  });
+
   it("keeps the React snippet synchronized with configuration", () => {
     const code = createCode({
       ...INITIAL_CONFIG,
@@ -18,7 +78,7 @@ describe("playground exporters", () => {
       'pointer={{ enabled: false, target: "parent", strength: 1.35, rangeX: 18, rangeY: 12, tilt: 3 }}',
     );
     expect(code).toContain(
-      'eyeMotion={{ enabled: true, idle: true, hover: "notice", hoverReaction: "tilt", contextMenuBlink: true, intensity: 1, interval: [2400, 5200] }}',
+      'expressionTriggers: { cheeky: "roll", dizzy: "orbit", surprised: "recoil", sleepy: "droop", alert: "doubleTake" }',
     );
     expect(code).toContain(
       "surface={{ enabled: true, perspective: 1, edgeCompression: 0.82, depth: 0.65, bodyFollow: 0.28, inertia: 0.4, maxTurn: 42, volumePreservation: 0.45 }}",
@@ -50,6 +110,13 @@ describe("playground exporters", () => {
       contextMenuBlink: true,
       intensity: 1,
       interval: [2400, 5200],
+      expressionTriggers: {
+        cheeky: "roll",
+        dizzy: "orbit",
+        surprised: "recoil",
+        sleepy: "droop",
+        alert: "doubleTake",
+      },
     });
     expect(parsed.surface).toEqual({
       enabled: true,

@@ -42,7 +42,7 @@ import {
   normalizeExpressionMotion,
   type ExpressionMotionConfig,
 } from "./expression-motion";
-import { createShapePath, type ShapeName } from "./geometry";
+import { SHAPE_NAMES, createShapePath, type ShapeName } from "./geometry";
 import {
   EXPRESSION_NAMES,
   resolveExpression,
@@ -77,6 +77,10 @@ export type MoodieProps = Omit<
   expressionOrder?: readonly string[];
   onExpressionChange?: (expression: string) => void;
   shape?: ShapeName;
+  defaultShape?: ShapeName;
+  shapeOrder?: readonly ShapeName[];
+  onShapeChange?: (shape: ShapeName) => void;
+  doubleContextShapeCycle?: boolean;
   color?: string;
   eyeColor?: string;
   size?: number | string;
@@ -125,6 +129,11 @@ const neutralTransform = {
   scaleY: 1,
 };
 
+const neutralEyeTransform = {
+  ...neutralTransform,
+  opacity: 1,
+};
+
 export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
   function Moodie(providedProps, forwardedRef) {
     const providerDefaults = useMoodieDefaults();
@@ -134,7 +143,11 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       expressions = {},
       expressionOrder,
       onExpressionChange,
-      shape = DEFAULT_CONFIG.shape,
+      shape,
+      defaultShape = DEFAULT_CONFIG.shape,
+      shapeOrder = SHAPE_NAMES,
+      onShapeChange,
+      doubleContextShapeCycle = false,
       color = DEFAULT_CONFIG.color,
       eyeColor = DEFAULT_CONFIG.eyeColor,
       size = DEFAULT_CONFIG.size,
@@ -168,6 +181,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const [internalExpression, setInternalExpression] =
       useState(defaultExpression);
     const currentExpression = expression ?? internalExpression;
+    const [internalShape, setInternalShape] = useState(defaultShape);
+    const currentShape = shape ?? internalShape;
     const [internalGaze, setInternalGaze] = useState<GazePoint>({ x: 0, y: 0 });
     const [isBlinking, setIsBlinking] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -179,7 +194,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const eyeAnimationTimeout = useRef<ReturnType<typeof setTimeout> | null>(
       null,
     );
+    const eyeAnimationPlaybackId = useRef(0);
     const lastIdleEyeAnimation = useRef<EyeAnimationName | null>(null);
+    const lastContextMenuAt = useRef(0);
     const systemReducedMotion = useReducedMotion();
     const reactionControls = useAnimationControls();
     const leftExpressionControls = useAnimationControls();
@@ -237,6 +254,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.hover,
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.hoverReaction,
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.contextMenuBlink,
+        typeof eyeMotion === "boolean"
+          ? undefined
+          : JSON.stringify(eyeMotion.expressionTriggers),
       ],
     );
     const autoConfig = useMemo(
@@ -332,7 +352,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       motionPreset !== "none";
     const eyeMotionEnabled =
       eyeMotionConfig.enabled && !shouldReduceMotion && motionPreset !== "none";
-    const bodyPath = createShapePath(shape);
+    const bodyPath = createShapePath(currentShape);
     const activeGaze = gaze === false ? { x: 0, y: 0 } : (gaze ?? internalGaze);
     const normalizedGaze = {
       x: clamp(activeGaze.x, -1, 1),
@@ -373,6 +393,14 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         onExpressionChange?.(nextExpression);
       },
       [expression, onExpressionChange],
+    );
+
+    const updateShape = useCallback(
+      (nextShape: ShapeName) => {
+        if (shape === undefined) setInternalShape(nextShape);
+        onShapeChange?.(nextShape);
+      },
+      [onShapeChange, shape],
     );
 
     const playReaction = useCallback(
@@ -419,17 +447,18 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const playEyeAnimation = useCallback(
       (animation: EyeAnimationName = "notice") => {
         if (!eyeMotionEnabled) return;
+        const playbackId = ++eyeAnimationPlaybackId.current;
         if (eyeAnimationTimeout.current)
           clearTimeout(eyeAnimationTimeout.current);
         const cue = createEyeAnimationCue(animation, eyeMotionConfig.intensity);
         eyeControls.stop();
-        eyeControls.set(neutralTransform);
         setActiveEyeAnimation(animation);
         void eyeControls.start(cue as TargetAndTransition);
-        eyeAnimationTimeout.current = setTimeout(
-          () => setActiveEyeAnimation(null),
-          cue.transition.duration * 1000,
-        );
+        eyeAnimationTimeout.current = setTimeout(() => {
+          if (eyeAnimationPlaybackId.current !== playbackId) return;
+          setActiveEyeAnimation(null);
+          eyeAnimationTimeout.current = null;
+        }, cue.transition.duration * 1000);
       },
       [eyeControls, eyeMotionConfig.intensity, eyeMotionEnabled],
     );
@@ -473,14 +502,41 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     const leaveFace = useCallback(() => setIsHovered(false), []);
 
-    const blinkFromContextMenu = useCallback(
+    const orderedShapes = useMemo(() => {
+      const validShapes = shapeOrder.filter((candidate) =>
+        SHAPE_NAMES.includes(candidate),
+      );
+      return validShapes.length > 0
+        ? [...new Set(validShapes)]
+        : [...SHAPE_NAMES];
+    }, [shapeOrder]);
+
+    const cycleShape = useCallback(() => {
+      const currentIndex = orderedShapes.indexOf(currentShape);
+      updateShape(orderedShapes[(currentIndex + 1) % orderedShapes.length]);
+    }, [currentShape, orderedShapes, updateShape]);
+
+    const handleContextMenuGesture = useCallback(
       (event: Event) => {
-        if (!eyeMotionConfig.enabled || !eyeMotionConfig.contextMenuBlink)
-          return;
+        if (event.defaultPrevented) return;
+        const now = Date.now();
+        const isDoubleContext =
+          doubleContextShapeCycle && now - lastContextMenuAt.current <= 420;
+        lastContextMenuAt.current = isDoubleContext ? 0 : now;
+        const shouldBlink =
+          eyeMotionConfig.enabled && eyeMotionConfig.contextMenuBlink;
+        if (!shouldBlink && !doubleContextShapeCycle) return;
         event.preventDefault();
-        triggerBlink();
+        if (shouldBlink) triggerBlink();
+        if (isDoubleContext) cycleShape();
       },
-      [eyeMotionConfig.contextMenuBlink, eyeMotionConfig.enabled, triggerBlink],
+      [
+        cycleShape,
+        doubleContextShapeCycle,
+        eyeMotionConfig.contextMenuBlink,
+        eyeMotionConfig.enabled,
+        triggerBlink,
+      ],
     );
 
     const orderedExpressions = useMemo(() => {
@@ -531,15 +587,25 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     useEffect(() => {
       if (eyeMotionEnabled) return;
+      eyeAnimationPlaybackId.current += 1;
+      if (eyeAnimationTimeout.current) {
+        clearTimeout(eyeAnimationTimeout.current);
+        eyeAnimationTimeout.current = null;
+      }
       eyeControls.stop();
-      eyeControls.set(neutralTransform);
+      eyeControls.set(neutralEyeTransform);
       setActiveEyeAnimation(null);
     }, [eyeControls, eyeMotionEnabled]);
 
     useEffect(() => {
       const previous = previousExpression.current;
       previousExpression.current = currentExpression;
-      if (previous === currentExpression || !expressionMotionEnabled) return;
+      if (previous === currentExpression) return;
+
+      const eyeTrigger = eyeMotionConfig.expressionTriggers[currentExpression];
+      if (eyeTrigger && eyeTrigger !== "none") playEyeAnimation(eyeTrigger);
+
+      if (!expressionMotionEnabled) return;
 
       if (expressionMotionConfig.eyes) {
         leftExpressionControls.stop();
@@ -565,7 +631,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       rightExpressionControls,
       expressionMotionConfig,
       expressionMotionEnabled,
+      eyeMotionConfig.expressionTriggers,
       playReaction,
+      playEyeAnimation,
     ]);
 
     useEffect(() => {
@@ -667,6 +735,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     useEffect(
       () => () => {
+        eyeAnimationPlaybackId.current += 1;
         if (blinkTimeout.current) clearTimeout(blinkTimeout.current);
         if (eyeAnimationTimeout.current)
           clearTimeout(eyeAnimationTimeout.current);
@@ -686,7 +755,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         move(event);
       };
       const leave = () => leaveSurface();
-      const contextMenu = (event: Event) => blinkFromContextMenu(event);
+      const contextMenu = (event: Event) => handleContextMenuGesture(event);
       surface.addEventListener("pointermove", move);
       surface.addEventListener("pointerenter", enter);
       surface.addEventListener("pointerleave", leave);
@@ -698,7 +767,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         surface.removeEventListener("contextmenu", contextMenu);
       };
     }, [
-      blinkFromContextMenu,
+      handleContextMenuGesture,
       leaveSurface,
       pointerConfig.enabled,
       pointerConfig.target,
@@ -725,7 +794,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const handleContextMenu = (event: ReactMouseEvent<SVGSVGElement>) => {
       onContextMenu?.(event);
       if (event.defaultPrevented || pointerConfig.target !== "self") return;
-      blinkFromContextMenu(event.nativeEvent);
+      handleContextMenuGesture(event.nativeEvent);
     };
 
     const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -756,7 +825,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         className={className}
         style={mergedStyle}
         data-expression={currentExpression}
-        data-shape={shape}
+        data-shape={currentShape}
         data-blinking={String(isBlinking)}
         data-gaze-x={String(Number(normalizedGaze.x.toFixed(3)))}
         data-gaze-y={String(Number(normalizedGaze.y.toFixed(3)))}

@@ -82,6 +82,13 @@ describe("configuration normalization", () => {
       hover: "notice",
       hoverReaction: "tilt",
       contextMenuBlink: true,
+      expressionTriggers: {
+        cheeky: "roll",
+        dizzy: "orbit",
+        surprised: "recoil",
+        sleepy: "droop",
+        alert: "doubleTake",
+      },
     });
 
     expect(
@@ -98,6 +105,25 @@ describe("configuration normalization", () => {
       idleAnimations: ["wide"],
       hover: "notice",
       hoverReaction: "tilt",
+    });
+  });
+
+  it("normalizes expression eye triggers and rejects unknown cues", () => {
+    expect(
+      normalizeEyeMotion({
+        expressionTriggers: {
+          cheeky: "none",
+          focused: "shake",
+          sleepy: "unknown",
+        },
+      } as never).expressionTriggers,
+    ).toEqual({
+      cheeky: "none",
+      dizzy: "orbit",
+      surprised: "recoil",
+      sleepy: "droop",
+      alert: "doubleTake",
+      focused: "shake",
     });
   });
 
@@ -169,6 +195,13 @@ describe("configuration normalization", () => {
         hover: "notice",
         hoverReaction: "tilt",
         contextMenuBlink: true,
+        expressionTriggers: {
+          cheeky: "roll",
+          dizzy: "orbit",
+          surprised: "recoil",
+          sleepy: "droop",
+          alert: "doubleTake",
+        },
       },
     });
   });
