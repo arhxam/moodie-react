@@ -15,12 +15,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  BODY_SHAPES,
   DISPLAY_EXPRESSIONS,
   EXPRESSION_EYE_TRIGGERS,
   INITIAL_CONFIG,
   type PlaygroundConfig,
 } from "@/lib/playground";
+import {
+  RECORDING_SHAPE_ORDER,
+  applyRecordingShape,
+} from "@/lib/recording-demo";
 import {
   SHOWCASE_PAUSE_MS,
   SHOWCASE_STEPS,
@@ -57,8 +60,19 @@ export function Playground() {
       key: Key,
       value: PlaygroundConfig[Key],
     ) => {
+      if (key === "shape" && value === "square") {
+        director.close();
+        setConfig((current) => applyRecordingShape(current, "square"));
+        requestAnimationFrame(() => moodieRef.current?.animateEyes("squint"));
+        return;
+      }
+
       director.pauseFor(SHOWCASE_PAUSE_MS);
-      setConfig((current) => ({ ...current, [key]: value }));
+      setConfig((current) =>
+        key === "shape"
+          ? applyRecordingShape(current, value as PlaygroundConfig["shape"])
+          : { ...current, [key]: value },
+      );
     },
     [director],
   );
@@ -96,7 +110,7 @@ export function Playground() {
 
   const handlePointerEnter = useCallback(() => {
     setIsPointerInside(true);
-    director.pauseFor(SHOWCASE_PAUSE_MS);
+    director.pauseFor(30_000);
   }, [director]);
 
   const handlePointerLeave = useCallback(() => {
@@ -156,84 +170,97 @@ export function Playground() {
             onPointerEnter={handlePointerEnter}
             onPointerLeave={handlePointerLeave}
           >
-            <Moodie
-              ref={moodieRef}
-              expression={config.expression}
-              onExpressionChange={(expression) =>
-                update("expression", expression)
+            <div
+              className={`demo-face-frame${
+                config.shape === "square"
+                  ? " demo-face-frame--square-arrival"
+                  : ""
+              }`}
+              data-recording-performance={
+                config.shape === "square" ? "square-arrival" : "ready"
               }
-              expressionOrder={DISPLAY_EXPRESSIONS}
-              shape={config.shape}
-              shapeOrder={BODY_SHAPES}
-              onShapeChange={(shape) => update("shape", shape)}
-              doubleContextShapeCycle
-              color={config.color}
-              eyeColor={config.eyeColor}
-              size={config.size}
-              motion={config.motion}
-              spring={{
-                stiffness: config.stiffness,
-                damping: config.damping,
-                mass: config.mass,
-              }}
-              pointer={{
-                enabled: config.pointer,
-                target: config.pointerTarget,
-                strength: config.pointerStrength,
-                rangeX: config.pointerRangeX,
-                rangeY: config.pointerRangeY,
-                tilt: config.pointerTilt,
-              }}
-              surface={{
-                enabled: config.surface,
-                perspective: config.surfacePerspective,
-                edgeCompression: config.edgeCompression,
-                depth: config.surfaceDepth,
-                bodyFollow: config.bodyFollow,
-                inertia: config.surfaceInertia,
-                maxTurn: config.maxTurn,
-                volumePreservation: config.surfaceVolumePreservation,
-              }}
-              eyeMotion={{
-                enabled: config.eyeMotion,
-                idle: config.idleEyeMotion,
-                hover: config.hoverEyeMotion,
-                hoverReaction: config.hoverReaction,
-                contextMenuBlink: config.contextMenuBlink,
-                intensity: config.eyeMotionIntensity,
-                interval: [
-                  config.eyeMotionIntervalMin,
-                  config.eyeMotionIntervalMax,
-                ],
-                expressionTriggers: EXPRESSION_EYE_TRIGGERS,
-              }}
-              blink={config.blink}
-              auto={
-                config.auto
-                  ? { enabled: true, expressions: DISPLAY_EXPRESSIONS }
-                  : false
-              }
-              eyeScale={config.eyeScale}
-              eyeDistance={config.eyeDistance}
-              gaze={
-                director.status === "running" && !isPointerInside
-                  ? showcaseStep.gaze
-                  : undefined
-              }
-              gazeLimit={config.gazeLimit}
-              expressionMotion={{
-                intensity: config.expressiveness,
-                duration: config.expressionDuration,
-                eyes: config.eyePerformance,
-                body: config.bodyPerformance,
-                anticipation: config.expressionAnticipation,
-                overshoot: config.expressionOvershoot,
-                stagger: config.eyeStagger,
-              }}
-              clickAction="random"
-              onClick={() => director.pauseFor(SHOWCASE_PAUSE_MS)}
-              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, right-click to blink, or double right-click to change shape.`}
-            />
+              data-eye-scale={config.eyeScale}
+              data-eye-distance={config.eyeDistance}
+            >
+              <Moodie
+                ref={moodieRef}
+                expression={config.expression}
+                onExpressionChange={(expression) =>
+                  update("expression", expression)
+                }
+                expressionOrder={DISPLAY_EXPRESSIONS}
+                shape={config.shape}
+                shapeOrder={RECORDING_SHAPE_ORDER}
+                onShapeChange={(shape) => update("shape", shape)}
+                doubleContextShapeCycle
+                color={config.color}
+                eyeColor={config.eyeColor}
+                size={config.size}
+                motion={config.motion}
+                spring={{
+                  stiffness: config.stiffness,
+                  damping: config.damping,
+                  mass: config.mass,
+                }}
+                pointer={{
+                  enabled: config.pointer,
+                  target: config.pointerTarget,
+                  strength: config.pointerStrength,
+                  rangeX: config.pointerRangeX,
+                  rangeY: config.pointerRangeY,
+                  tilt: config.pointerTilt,
+                }}
+                surface={{
+                  enabled: config.surface,
+                  perspective: config.surfacePerspective,
+                  edgeCompression: config.edgeCompression,
+                  depth: config.surfaceDepth,
+                  bodyFollow: config.bodyFollow,
+                  inertia: config.surfaceInertia,
+                  maxTurn: config.maxTurn,
+                  volumePreservation: config.surfaceVolumePreservation,
+                }}
+                eyeMotion={{
+                  enabled: config.eyeMotion,
+                  idle: config.idleEyeMotion,
+                  hover: config.hoverEyeMotion,
+                  hoverReaction: config.hoverReaction,
+                  contextMenuBlink: config.contextMenuBlink,
+                  intensity: config.eyeMotionIntensity,
+                  interval: [
+                    config.eyeMotionIntervalMin,
+                    config.eyeMotionIntervalMax,
+                  ],
+                  expressionTriggers: EXPRESSION_EYE_TRIGGERS,
+                }}
+                blink={config.blink}
+                auto={
+                  config.auto
+                    ? { enabled: true, expressions: DISPLAY_EXPRESSIONS }
+                    : false
+                }
+                eyeScale={config.eyeScale}
+                eyeDistance={config.eyeDistance}
+                gaze={
+                  director.status === "running" && !isPointerInside
+                    ? showcaseStep.gaze
+                    : undefined
+                }
+                gazeLimit={config.gazeLimit}
+                expressionMotion={{
+                  intensity: config.expressiveness,
+                  duration: config.expressionDuration,
+                  eyes: config.eyePerformance,
+                  body: config.bodyPerformance,
+                  anticipation: config.expressionAnticipation,
+                  overshoot: config.expressionOvershoot,
+                  stagger: config.eyeStagger,
+                }}
+                clickAction="random"
+                onClick={() => director.pauseFor(SHOWCASE_PAUSE_MS)}
+                ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, right-click to blink, or double right-click to change shape.`}
+              />
+            </div>
           </div>
           <div className="stage-actions">
             <div className="stage-hint">

@@ -137,7 +137,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.5.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.5.1`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 

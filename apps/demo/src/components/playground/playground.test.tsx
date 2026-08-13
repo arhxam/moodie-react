@@ -26,7 +26,7 @@ describe("Playground showcase", () => {
     expect(screen.getByText("Demo running")).toBeTruthy();
     expect(within(preview).getByText("excited")).toBeTruthy();
 
-    act(() => vi.advanceTimersByTime(1900));
+    act(() => vi.advanceTimersByTime(12_000));
     expect(within(preview).getByText("cheeky")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Try another mood" }));
@@ -39,5 +39,27 @@ describe("Playground showcase", () => {
 
     act(() => vi.advanceTimersByTime(60_000));
     expect(preview.textContent).toBe(manualExpression);
+  });
+
+  it("converts the recording face directly to a fitted square performance", () => {
+    render(
+      <TooltipProvider>
+        <Playground />
+      </TooltipProvider>,
+    );
+
+    const face = screen.getByRole("img", { name: /Animated excited face/ });
+    const trackingSurface = face.parentElement!;
+
+    fireEvent.contextMenu(trackingSurface);
+    fireEvent.contextMenu(trackingSurface);
+
+    expect(face.getAttribute("data-shape")).toBe("square");
+    expect(trackingSurface.getAttribute("data-recording-performance")).toBe(
+      "square-arrival",
+    );
+    expect(trackingSurface.getAttribute("data-eye-scale")).toBe("0.82");
+    expect(trackingSurface.getAttribute("data-eye-distance")).toBe("0.9");
+    expect(screen.getByText("Manual mode")).toBeTruthy();
   });
 });
