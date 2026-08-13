@@ -660,7 +660,7 @@ export function ConfigInspector({
           <RotateCcwIcon data-icon="inline-start" />
           Reset defaults
         </Button>
-        <span>16 presets · 5 shapes</span>
+        <span>16 presets · 11 shapes</span>
       </div>
     </div>
   );

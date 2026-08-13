@@ -44,6 +44,7 @@ export type {
 } from "./expression-motion";
 
 export {
+  SHAPE_NAMES,
   createClosedPath,
   createEyePath,
   createEyePoints,

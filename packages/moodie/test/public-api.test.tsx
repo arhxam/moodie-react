@@ -1,9 +1,25 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Moodie, MoodieProvider, useMoodieControls } from "../src";
+import { Moodie, MoodieProvider, SHAPE_NAMES, useMoodieControls } from "../src";
 
 describe("public API", () => {
+  it("exports every built-in body shape", () => {
+    expect(SHAPE_NAMES).toEqual([
+      "circle",
+      "squircle",
+      "blob",
+      "pebble",
+      "diamond",
+      "oval",
+      "triangle",
+      "cloud",
+      "hexagon",
+      "square",
+      "drop",
+    ]);
+  });
+
   it("applies shared visual and behavior defaults through a provider", () => {
     render(
       <MoodieProvider

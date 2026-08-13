@@ -90,6 +90,8 @@ Boolean shorthands work for `pointer`, `surface`, `eyeMotion`, `blink`, and `aut
 
 Eye motion is layered independently from gaze, expression morphs, and blinking. Built-in cues are `notice`, `glance`, `squint`, `wide`, and `flutter`. Canvas entry starts tracking immediately, while hovering the face can play both an eye cue and a body reaction without changing the selected expression. With `contextMenuBlink`, right-clicking the configured tracking surface blinks and suppresses the browser menu. Explicit right-click and imperative blinks work even when automatic blink cadence is disabled.
 
+A rapid double right-click can cycle the body silhouette while preserving the single-right-click blink. Enable `doubleContextShapeCycle`, then use `defaultShape` for an internally managed starting shape or pair `shape` with `onShapeChange` for controlled state. `shapeOrder` changes the cycle order. The gesture is opt-in so existing context-menu behavior remains backward compatible.
+
 ### Surface realism
 
 Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, each eye compresses along the direction of travel; horizontal gaze narrows width, vertical gaze shortens height, and diagonal gaze blends both axes. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion. `volumePreservation` adds a subtle bounded expansion across the tangent axis so strong gaze retains appealing visual weight.
@@ -163,23 +165,26 @@ ref.current?.setExpression("alert");
 
 ## Main props
 
-| Prop                | Type                                                    | Default    |
-| ------------------- | ------------------------------------------------------- | ---------- |
-| `expression`        | `ExpressionName \| string`                              | controlled |
-| `defaultExpression` | `ExpressionName \| string`                              | `neutral`  |
-| `shape`             | `circle \| squircle \| blob \| pebble \| diamond`       | `circle`   |
-| `color`             | CSS color                                               | `#5b6cff`  |
-| `eyeColor`          | CSS color                                               | `#0a0a0a`  |
-| `size`              | `number \| string`                                      | `240`      |
-| `motion`            | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
-| `expressionMotion`  | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
-| `pointer`           | `boolean \| PointerConfig`                              | `true`     |
-| `surface`           | `boolean \| Partial<SurfaceConfig>`                     | `true`     |
-| `eyeMotion`         | `boolean \| Partial<EyeMotionConfig>`                   | `true`     |
-| `blink`             | `boolean \| BlinkConfig`                                | `true`     |
-| `auto`              | `boolean \| AutoConfig`                                 | `false`    |
-| `clickAction`       | `react \| cycle \| random \| none`                      | `react`    |
-| `reducedMotion`     | `system \| always \| never`                             | `system`   |
+| Prop                      | Type                                                    | Default    |
+| ------------------------- | ------------------------------------------------------- | ---------- |
+| `expression`              | `ExpressionName \| string`                              | controlled |
+| `defaultExpression`       | `ExpressionName \| string`                              | `neutral`  |
+| `shape` / `defaultShape`  | `ShapeName`                                             | `circle`   |
+| `shapeOrder`              | `readonly ShapeName[]`                                  | all shapes |
+| `onShapeChange`           | `(shape: ShapeName) => void`                            | —          |
+| `doubleContextShapeCycle` | `boolean`                                               | `false`    |
+| `color`                   | CSS color                                               | `#5b6cff`  |
+| `eyeColor`                | CSS color                                               | `#0a0a0a`  |
+| `size`                    | `number \| string`                                      | `240`      |
+| `motion`                  | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
+| `expressionMotion`        | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
+| `pointer`                 | `boolean \| PointerConfig`                              | `true`     |
+| `surface`                 | `boolean \| Partial<SurfaceConfig>`                     | `true`     |
+| `eyeMotion`               | `boolean \| Partial<EyeMotionConfig>`                   | `true`     |
+| `blink`                   | `boolean \| BlinkConfig`                                | `true`     |
+| `auto`                    | `boolean \| AutoConfig`                                 | `false`    |
+| `clickAction`             | `react \| cycle \| random \| none`                      | `react`    |
+| `reducedMotion`           | `system \| always \| never`                             | `system`   |
 
 All standard SVG props except the conflicting native `color` definition are forwarded.
 

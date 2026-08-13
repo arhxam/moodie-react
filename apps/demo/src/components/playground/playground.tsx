@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  BODY_SHAPES,
   DISPLAY_EXPRESSIONS,
   INITIAL_CONFIG,
   type PlaygroundConfig,
@@ -68,6 +69,9 @@ export function Playground() {
               }
               expressionOrder={DISPLAY_EXPRESSIONS}
               shape={config.shape}
+              shapeOrder={BODY_SHAPES}
+              onShapeChange={(shape) => update("shape", shape)}
+              doubleContextShapeCycle
               color={config.color}
               eyeColor={config.eyeColor}
               size={config.size}
@@ -126,13 +130,13 @@ export function Playground() {
                 stagger: config.eyeStagger,
               }}
               clickAction="random"
-              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, or right-click to blink.`}
+              ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, right-click to blink, or double right-click to change shape.`}
             />
           </div>
           <div className="stage-actions">
             <div className="stage-hint">
               <MousePointer2Icon /> Enter to track · hover to react ·
-              right-click to blink
+              right-click to blink · double right-click to change shape
             </div>
             <Tooltip>
               <TooltipTrigger asChild>

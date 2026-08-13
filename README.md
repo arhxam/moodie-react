@@ -36,12 +36,12 @@ export function LoadingState() {
 
 - Smooth path morphing across 16 built-in expressions
 - Automatic squash, rebound, and expression-specific eye performances
-- Five body shapes and fully configurable CSS colors
+- Eleven body shapes and fully configurable CSS colors
 - Pointer-following gaze, automatic blinking, and expression cycling
 - Face-only or parent-canvas gaze with configurable sensitivity, travel, and tilt
 - Curved-surface projection with edge compression, depth, body follow, and inertia
 - Natural notice, glance, squint, widen, and flutter eye performances
-- Configurable hover recognition, idle micro-motion, and right-click blinking
+- Configurable hover recognition, idle micro-motion, right-click blinking, and double-right-click body cycling
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
 - Controlled or uncontrolled React state
 - Custom expressions built from normalized eye geometry

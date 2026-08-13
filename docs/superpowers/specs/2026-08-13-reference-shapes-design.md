@@ -36,6 +36,10 @@ The README, package README, LLM guide, and public `llms.txt` lists are updated s
 - The package remains asset-free and SSR-safe.
 - Shape changes continue using the user's selected motion preset and reduced-motion preference.
 
+## Follow-up interaction
+
+A rapid double right-click cycles the body silhouette while the first right-click retains the existing blink. The component supports uncontrolled cycling with `defaultShape` and controlled cycling with `shape` plus `onShapeChange`; `shapeOrder` controls the sequence. The demo keeps its shape selector synchronized with the gesture. The expression rail starts with `excited`, uses `excited` as the initial preview, and places `curious` last.
+
 ## Testing and verification
 
 - Geometry tests assert all 11 built-ins are distinct and use 16 cubic segments.

@@ -1,11 +1,26 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  SHAPE_NAMES,
   createClosedPath,
   createEyePath,
   createShapePath,
   pathCommandCount,
 } from "../src/geometry";
+
+const EXPECTED_SHAPES = [
+  "circle",
+  "squircle",
+  "blob",
+  "pebble",
+  "diamond",
+  "oval",
+  "triangle",
+  "cloud",
+  "hexagon",
+  "square",
+  "drop",
+] as const;
 
 describe("geometry", () => {
   it("creates deterministic closed cubic paths", () => {
@@ -30,16 +45,15 @@ describe("geometry", () => {
   });
 
   it("keeps path topology stable across every body shape", () => {
-    const paths = ["circle", "squircle", "blob", "pebble", "diamond"].map(
-      (shape) => createShapePath(shape),
-    );
+    expect(SHAPE_NAMES).toEqual(EXPECTED_SHAPES);
+    const paths = SHAPE_NAMES.map((shape) => createShapePath(shape));
 
     expect(new Set(paths.map(pathCommandCount))).toEqual(new Set([16]));
     expect(new Set(paths).size).toBe(paths.length);
   });
 
   it("keeps every body silhouette centered and safely inside its view box", () => {
-    for (const shape of ["circle", "squircle", "blob", "pebble", "diamond"]) {
+    for (const shape of SHAPE_NAMES) {
       const numbers = createShapePath(shape)
         .match(/-?\d+(?:\.\d+)?/g)
         ?.map(Number);
@@ -67,6 +81,10 @@ describe("geometry", () => {
         `${shape} vertical center`,
       ).toBeCloseTo(100, 0);
     }
+  });
+
+  it("falls back to the circle silhouette for an unknown runtime name", () => {
+    expect(createShapePath("not-a-shape")).toBe(createShapePath("circle"));
   });
 
   it("keeps path topology stable across eye geometry", () => {

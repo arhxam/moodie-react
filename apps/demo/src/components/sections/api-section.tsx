@@ -23,7 +23,13 @@ const rows = [
     "shape",
     "ShapeName",
     '"circle"',
-    "Circle, squircle, blob, pebble, or diamond.",
+    "Eleven built-in silhouettes, including cloud, triangle, and drop.",
+  ],
+  [
+    "defaultShape / shapeOrder",
+    "ShapeName / ShapeName[]",
+    '"circle" / all',
+    "Starting form and double-right-click cycle order.",
   ],
   ["color / eyeColor", "string", "#5b6cff / #0a0a0a", "Any valid CSS color."],
   [

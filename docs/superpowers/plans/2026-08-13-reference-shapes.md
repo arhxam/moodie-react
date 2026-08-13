@@ -87,6 +87,22 @@
 - [ ] Compare silhouette, softness, centering, eye clearance, relative width/height, and ordering; adjust geometry and repeat verification until no material mismatch remains.
 - [ ] Review `git diff origin/master...HEAD` and `git status --short` to ensure only intended work is included.
 
+### Task 7: Add double-right-click shape cycling and reorder presets
+
+**Files:**
+
+- Modify: `packages/moodie/src/moodie.tsx`
+- Modify: `packages/moodie/test/shapes.test.tsx`
+- Modify: `apps/demo/src/components/playground/playground.tsx`
+- Modify: `apps/demo/src/lib/playground.ts`
+- Modify: `apps/demo/src/lib/playground.test.ts`
+
+- [ ] Cover uncontrolled and controlled double-right-click cycling with failing component tests.
+- [ ] Add `defaultShape`, `shapeOrder`, `onShapeChange`, and `doubleContextShapeCycle` while preserving single-right-click blink behavior.
+- [ ] Connect the controlled playground shape state and make generated examples use `defaultShape`.
+- [ ] Start the preset rail and initial preview with `excited`, and place `curious` last.
+- [ ] Verify the gesture in the browser and synchronize public documentation.
+
 ## Self-review
 
 Every design requirement maps to a task: additive API and fallback (Tasks 1–2), demo flow (Tasks 3–4), documentation (Task 5), and automated plus visual verification (Task 6). The plan contains no unresolved placeholders, and all names/types are consistent with the design spec.

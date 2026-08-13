@@ -42,7 +42,7 @@ import {
   normalizeExpressionMotion,
   type ExpressionMotionConfig,
 } from "./expression-motion";
-import { createShapePath, type ShapeName } from "./geometry";
+import { SHAPE_NAMES, createShapePath, type ShapeName } from "./geometry";
 import {
   EXPRESSION_NAMES,
   resolveExpression,
@@ -77,6 +77,10 @@ export type MoodieProps = Omit<
   expressionOrder?: readonly string[];
   onExpressionChange?: (expression: string) => void;
   shape?: ShapeName;
+  defaultShape?: ShapeName;
+  shapeOrder?: readonly ShapeName[];
+  onShapeChange?: (shape: ShapeName) => void;
+  doubleContextShapeCycle?: boolean;
   color?: string;
   eyeColor?: string;
   size?: number | string;
@@ -134,7 +138,11 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       expressions = {},
       expressionOrder,
       onExpressionChange,
-      shape = DEFAULT_CONFIG.shape,
+      shape,
+      defaultShape = DEFAULT_CONFIG.shape,
+      shapeOrder = SHAPE_NAMES,
+      onShapeChange,
+      doubleContextShapeCycle = false,
       color = DEFAULT_CONFIG.color,
       eyeColor = DEFAULT_CONFIG.eyeColor,
       size = DEFAULT_CONFIG.size,
@@ -168,6 +176,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const [internalExpression, setInternalExpression] =
       useState(defaultExpression);
     const currentExpression = expression ?? internalExpression;
+    const [internalShape, setInternalShape] = useState(defaultShape);
+    const currentShape = shape ?? internalShape;
     const [internalGaze, setInternalGaze] = useState<GazePoint>({ x: 0, y: 0 });
     const [isBlinking, setIsBlinking] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -180,6 +190,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       null,
     );
     const lastIdleEyeAnimation = useRef<EyeAnimationName | null>(null);
+    const lastContextMenuAt = useRef(0);
     const systemReducedMotion = useReducedMotion();
     const reactionControls = useAnimationControls();
     const leftExpressionControls = useAnimationControls();
@@ -332,7 +343,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       motionPreset !== "none";
     const eyeMotionEnabled =
       eyeMotionConfig.enabled && !shouldReduceMotion && motionPreset !== "none";
-    const bodyPath = createShapePath(shape);
+    const bodyPath = createShapePath(currentShape);
     const activeGaze = gaze === false ? { x: 0, y: 0 } : (gaze ?? internalGaze);
     const normalizedGaze = {
       x: clamp(activeGaze.x, -1, 1),
@@ -373,6 +384,14 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         onExpressionChange?.(nextExpression);
       },
       [expression, onExpressionChange],
+    );
+
+    const updateShape = useCallback(
+      (nextShape: ShapeName) => {
+        if (shape === undefined) setInternalShape(nextShape);
+        onShapeChange?.(nextShape);
+      },
+      [onShapeChange, shape],
     );
 
     const playReaction = useCallback(
@@ -473,14 +492,41 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     const leaveFace = useCallback(() => setIsHovered(false), []);
 
-    const blinkFromContextMenu = useCallback(
+    const orderedShapes = useMemo(() => {
+      const validShapes = shapeOrder.filter((candidate) =>
+        SHAPE_NAMES.includes(candidate),
+      );
+      return validShapes.length > 0
+        ? [...new Set(validShapes)]
+        : [...SHAPE_NAMES];
+    }, [shapeOrder]);
+
+    const cycleShape = useCallback(() => {
+      const currentIndex = orderedShapes.indexOf(currentShape);
+      updateShape(orderedShapes[(currentIndex + 1) % orderedShapes.length]);
+    }, [currentShape, orderedShapes, updateShape]);
+
+    const handleContextMenuGesture = useCallback(
       (event: Event) => {
-        if (!eyeMotionConfig.enabled || !eyeMotionConfig.contextMenuBlink)
-          return;
+        if (event.defaultPrevented) return;
+        const now = Date.now();
+        const isDoubleContext =
+          doubleContextShapeCycle && now - lastContextMenuAt.current <= 420;
+        lastContextMenuAt.current = isDoubleContext ? 0 : now;
+        const shouldBlink =
+          eyeMotionConfig.enabled && eyeMotionConfig.contextMenuBlink;
+        if (!shouldBlink && !doubleContextShapeCycle) return;
         event.preventDefault();
-        triggerBlink();
+        if (shouldBlink) triggerBlink();
+        if (isDoubleContext) cycleShape();
       },
-      [eyeMotionConfig.contextMenuBlink, eyeMotionConfig.enabled, triggerBlink],
+      [
+        cycleShape,
+        doubleContextShapeCycle,
+        eyeMotionConfig.contextMenuBlink,
+        eyeMotionConfig.enabled,
+        triggerBlink,
+      ],
     );
 
     const orderedExpressions = useMemo(() => {
@@ -686,7 +732,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         move(event);
       };
       const leave = () => leaveSurface();
-      const contextMenu = (event: Event) => blinkFromContextMenu(event);
+      const contextMenu = (event: Event) => handleContextMenuGesture(event);
       surface.addEventListener("pointermove", move);
       surface.addEventListener("pointerenter", enter);
       surface.addEventListener("pointerleave", leave);
@@ -698,7 +744,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         surface.removeEventListener("contextmenu", contextMenu);
       };
     }, [
-      blinkFromContextMenu,
+      handleContextMenuGesture,
       leaveSurface,
       pointerConfig.enabled,
       pointerConfig.target,
@@ -725,7 +771,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const handleContextMenu = (event: ReactMouseEvent<SVGSVGElement>) => {
       onContextMenu?.(event);
       if (event.defaultPrevented || pointerConfig.target !== "self") return;
-      blinkFromContextMenu(event.nativeEvent);
+      handleContextMenuGesture(event.nativeEvent);
     };
 
     const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -756,7 +802,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         className={className}
         style={mergedStyle}
         data-expression={currentExpression}
-        data-shape={shape}
+        data-shape={currentShape}
         data-blinking={String(isBlinking)}
         data-gaze-x={String(Number(normalizedGaze.x.toFixed(3)))}
         data-gaze-y={String(Number(normalizedGaze.y.toFixed(3)))}

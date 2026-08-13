@@ -53,7 +53,7 @@ export type PlaygroundConfig = {
 };
 
 export const INITIAL_CONFIG: PlaygroundConfig = {
-  expression: "curious",
+  expression: "excited",
   shape: "circle",
   color: "#5b6cff",
   eyeColor: "#0a0a0a",
@@ -99,9 +99,8 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
 };
 
 export const DISPLAY_EXPRESSIONS = [
-  "curious",
-  "happy",
   "excited",
+  "happy",
   "sleepy",
   "sad",
   "worried",
@@ -111,6 +110,7 @@ export const DISPLAY_EXPRESSIONS = [
   "cheeky",
   "surprised",
   "calm",
+  "curious",
 ] as const;
 
 export const BODY_SHAPES = [
@@ -119,7 +119,13 @@ export const BODY_SHAPES = [
   "blob",
   "pebble",
   "diamond",
-] as const;
+  "oval",
+  "triangle",
+  "cloud",
+  "hexagon",
+  "square",
+  "drop",
+] as const satisfies readonly ShapeName[];
 export const MOTION_PRESETS = [
   "spring",
   "gentle",
@@ -154,7 +160,8 @@ export function StatusFace() {
   return (
     <Moodie
       expression="${config.expression}"
-      shape="${config.shape}"
+      defaultShape="${config.shape}"
+      doubleContextShapeCycle
       color="${config.color}"
       eyeColor="${config.eyeColor}"
       size={${config.size}}

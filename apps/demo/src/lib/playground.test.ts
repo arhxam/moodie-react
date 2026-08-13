@@ -1,8 +1,42 @@
 import { describe, expect, it } from "vitest";
 
-import { INITIAL_CONFIG, createCode, createJson } from "./playground";
+import {
+  BODY_SHAPES,
+  DISPLAY_EXPRESSIONS,
+  INITIAL_CONFIG,
+  createCode,
+  createJson,
+} from "./playground";
 
 describe("playground exporters", () => {
+  it("starts the preset rail with excited and leaves curious until last", () => {
+    expect(INITIAL_CONFIG.expression).toBe("excited");
+    expect(DISPLAY_EXPRESSIONS[0]).toBe("excited");
+    expect(DISPLAY_EXPRESSIONS.at(-1)).toBe("curious");
+  });
+
+  it("offers every built-in body shape and preserves new shapes in code", () => {
+    expect(BODY_SHAPES).toEqual([
+      "circle",
+      "squircle",
+      "blob",
+      "pebble",
+      "diamond",
+      "oval",
+      "triangle",
+      "cloud",
+      "hexagon",
+      "square",
+      "drop",
+    ]);
+    expect(createCode({ ...INITIAL_CONFIG, shape: "drop" })).toContain(
+      'defaultShape="drop"',
+    );
+    expect(createCode({ ...INITIAL_CONFIG, shape: "drop" })).toContain(
+      "doubleContextShapeCycle",
+    );
+  });
+
   it("keeps the React snippet synchronized with configuration", () => {
     const code = createCode({
       ...INITIAL_CONFIG,
