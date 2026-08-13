@@ -87,6 +87,12 @@ export function Playground() {
               eyeScale={config.eyeScale}
               eyeDistance={config.eyeDistance}
               gazeLimit={config.gazeLimit}
+              expressionMotion={{
+                intensity: config.expressiveness,
+                duration: config.expressionDuration,
+                eyes: config.eyePerformance,
+                body: config.bodyPerformance,
+              }}
               clickAction="random"
               ariaLabel={`Animated ${config.expression} face. Click to randomize.`}
             />

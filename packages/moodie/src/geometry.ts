@@ -34,6 +34,14 @@ const rotatePoint = (x: number, y: number, degrees: number): Point => {
   return [round(x * cosine - y * sine), round(x * sine + y * cosine)];
 };
 
+const centerPointLoop = (points: readonly Point[]): Point[] => {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const offsetX = (Math.min(...xs) + Math.max(...xs)) / 2 - 100;
+  const offsetY = (Math.min(...ys) + Math.max(...ys)) / 2 - 100;
+  return points.map(([x, y]) => [round(x - offsetX), round(y - offsetY)]);
+};
+
 /** Convert a closed point loop into a topology-stable Catmull–Rom cubic path. */
 export function createClosedPath(
   points: readonly Point[],
@@ -139,7 +147,7 @@ export function createShapePath(shape: ShapeName | string = "circle"): string {
   });
 
   return createClosedPath(
-    points,
+    centerPointLoop(points),
     name === "diamond" ? 0.28 : name === "squircle" ? 0.72 : 1,
   );
 }

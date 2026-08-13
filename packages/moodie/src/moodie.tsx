@@ -29,6 +29,12 @@ import {
   type SpringConfig,
 } from "./config";
 import {
+  createExpressionCue,
+  createReactionCue,
+  normalizeExpressionMotion,
+  type ExpressionMotionConfig,
+} from "./expression-motion";
+import {
   createEyePath,
   createShapePath,
   type EyeGeometry,
@@ -75,6 +81,7 @@ export type MoodieProps = Omit<
   flip?: boolean;
   motion?: MotionPreset;
   spring?: Partial<SpringConfig>;
+  expressionMotion?: boolean | Partial<ExpressionMotionConfig>;
   blink?: boolean | Partial<BlinkConfig>;
   pointer?: boolean | Partial<PointerConfig>;
   auto?: boolean | Partial<AutoConfig>;
@@ -100,6 +107,15 @@ const motionSprings: Record<
   gentle: { stiffness: 130, damping: 20, mass: 1 },
   snappy: { stiffness: 370, damping: 28, mass: 0.65 },
   bouncy: { stiffness: 260, damping: 12, mass: 0.75 },
+};
+
+const neutralTransform = {
+  x: 0,
+  y: 0,
+  rotate: 0,
+  scale: 1,
+  scaleX: 1,
+  scaleY: 1,
 };
 
 const transformedEye = (
@@ -144,6 +160,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       flip = false,
       motion: motionPreset = "spring",
       spring,
+      expressionMotion = true,
       blink = true,
       pointer = true,
       auto = false,
@@ -168,6 +185,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const blinkTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const systemReducedMotion = useReducedMotion();
     const reactionControls = useAnimationControls();
+    const expressionControls = useAnimationControls();
+    const previousExpression = useRef(currentExpression);
 
     const shouldReduceMotion =
       reducedMotion === "always" ||
@@ -205,6 +224,26 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         }),
       [motionPreset, spring?.stiffness, spring?.damping, spring?.mass],
     );
+    const expressionMotionConfig = useMemo(
+      () => normalizeExpressionMotion(expressionMotion),
+      [
+        typeof expressionMotion === "boolean"
+          ? expressionMotion
+          : expressionMotion.enabled,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.intensity,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.duration,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.eyes,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.body,
+      ],
+    );
 
     const transition =
       shouldReduceMotion || motionPreset === "none"
@@ -214,6 +253,10 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
           : { type: "spring" as const, ...springConfig };
 
     const definition = resolveExpression(currentExpression, expressions);
+    const expressionMotionEnabled =
+      expressionMotionConfig.enabled &&
+      !shouldReduceMotion &&
+      motionPreset !== "none";
     const leftPath = createEyePath(
       transformedEye(
         definition.left,
@@ -253,26 +296,30 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
           definition.reaction ??
           "bounce",
       ) => {
-        if (shouldReduceMotion || nextReaction === "none") return;
-        const animations: Record<
-          Exclude<ReactionName, "none">,
-          TargetAndTransition
-        > = {
-          bounce: {
-            y: [0, -8, 2, 0],
-            scaleX: [1, 0.98, 1.02, 1],
-            scaleY: [1, 1.03, 0.99, 1],
-          },
-          squash: { scaleX: [1, 1.06, 0.98, 1], scaleY: [1, 0.92, 1.03, 1] },
-          tilt: { rotate: [0, -5, 4, 0], y: [0, 2, -1, 0] },
-          spin: { rotate: [0, 10, -10, 6, 0], scale: [1, 0.96, 1.02, 1, 1] },
-        };
-        void reactionControls.start({
-          ...animations[nextReaction as keyof typeof animations],
-          transition: { duration: 0.52, ease: [0.22, 1, 0.36, 1] },
-        });
+        if (
+          shouldReduceMotion ||
+          motionPreset === "none" ||
+          nextReaction === "none"
+        )
+          return;
+        reactionControls.stop();
+        reactionControls.set(neutralTransform);
+        void reactionControls.start(
+          createReactionCue(
+            nextReaction as Exclude<ReactionName, "none">,
+            expressionMotionConfig,
+          ) as TargetAndTransition,
+        );
       },
-      [definition.reaction, reaction, reactionControls, shouldReduceMotion],
+      [
+        definition.reaction,
+        expressionMotionConfig.duration,
+        expressionMotionConfig.intensity,
+        motionPreset,
+        reaction,
+        reactionControls,
+        shouldReduceMotion,
+      ],
     );
 
     const triggerBlink = useCallback(() => {
@@ -328,6 +375,28 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       if (pointerConfig.enabled) return;
       setInternalGaze({ x: 0, y: 0 });
     }, [pointerConfig.enabled]);
+
+    useEffect(() => {
+      const previous = previousExpression.current;
+      previousExpression.current = currentExpression;
+      if (previous === currentExpression || !expressionMotionEnabled) return;
+
+      if (expressionMotionConfig.eyes) {
+        expressionControls.stop();
+        expressionControls.set(neutralTransform);
+        void expressionControls.start(
+          createExpressionCue(definition.performance, expressionMotionConfig),
+        );
+      }
+      if (expressionMotionConfig.body) playReaction();
+    }, [
+      currentExpression,
+      definition.performance,
+      expressionControls,
+      expressionMotionConfig,
+      expressionMotionEnabled,
+      playReaction,
+    ]);
 
     useEffect(() => {
       if (!blinkConfig.enabled || shouldReduceMotion) return;
@@ -439,6 +508,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         data-gaze-x={String(Number(normalizedGaze.x.toFixed(3)))}
         data-gaze-y={String(Number(normalizedGaze.y.toFixed(3)))}
         data-reduced-motion={String(shouldReduceMotion)}
+        data-expression-motion={String(expressionMotionEnabled)}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onClick={handleClick}
@@ -466,29 +536,41 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
             animate={{
               x: normalizedGaze.x * 11 * clamp(gazeLimit, 0, 2),
               y: normalizedGaze.y * 7 * clamp(gazeLimit, 0, 2),
-              scaleY: isBlinking ? 0.06 : 1,
             }}
-            transition={
-              isBlinking
-                ? { duration: blinkConfig.duration / 2000 }
-                : transition
-            }
+            transition={transition}
             style={{ transformOrigin: "100px 96px" }}
           >
-            <motion.path
-              data-part="left-eye"
-              d={leftPath}
-              fill={eyeColor}
-              animate={{ d: leftPath }}
-              transition={transition}
-            />
-            <motion.path
-              data-part="right-eye"
-              d={rightPath}
-              fill={eyeColor}
-              animate={{ d: rightPath }}
-              transition={transition}
-            />
+            <motion.g
+              data-part="expression-cue"
+              animate={expressionControls}
+              style={{ transformOrigin: "100px 96px" }}
+            >
+              <motion.g
+                data-part="blink"
+                animate={{ scaleY: isBlinking ? 0.06 : 1 }}
+                transition={
+                  isBlinking
+                    ? { duration: blinkConfig.duration / 2000 }
+                    : transition
+                }
+                style={{ transformOrigin: "100px 96px" }}
+              >
+                <motion.path
+                  data-part="left-eye"
+                  d={leftPath}
+                  fill={eyeColor}
+                  animate={{ d: leftPath }}
+                  transition={transition}
+                />
+                <motion.path
+                  data-part="right-eye"
+                  d={rightPath}
+                  fill={eyeColor}
+                  animate={{ d: rightPath }}
+                  transition={transition}
+                />
+              </motion.g>
+            </motion.g>
           </motion.g>
         </motion.g>
       </svg>

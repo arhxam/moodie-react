@@ -82,6 +82,13 @@ describe("configuration normalization", () => {
       color: "#5b6cff",
       eyeColor: "#0a0a0a",
       size: 240,
+      expressionMotion: {
+        enabled: true,
+        intensity: 1.35,
+        duration: 620,
+        eyes: true,
+        body: true,
+      },
     });
   });
 });

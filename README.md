@@ -30,6 +30,7 @@ export function LoadingState() {
 ## Why Moodie
 
 - Smooth path morphing across 16 built-in expressions
+- Automatic squash, rebound, and expression-specific eye performances
 - Five body shapes and fully configurable CSS colors
 - Pointer-following gaze, automatic blinking, and expression cycling
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
@@ -71,6 +72,7 @@ The demo opens at `http://localhost:5173` by default.
   size={240}
   motion="spring"
   spring={{ stiffness: 210, damping: 22, mass: 0.8 }}
+  expressionMotion={{ intensity: 1.35, duration: 620 }}
   pointer={{ enabled: true, strength: 1 }}
   blink={{ enabled: true, interval: [2600, 6200], duration: 150 }}
   auto={{ enabled: false, expressions: ["neutral", "thinking"] }}

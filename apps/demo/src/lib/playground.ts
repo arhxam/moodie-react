@@ -13,6 +13,10 @@ export type PlaygroundConfig = {
   eyeScale: number;
   eyeDistance: number;
   gazeLimit: number;
+  expressiveness: number;
+  expressionDuration: number;
+  eyePerformance: boolean;
+  bodyPerformance: boolean;
   pointer: boolean;
   blink: boolean;
   auto: boolean;
@@ -31,6 +35,10 @@ export const INITIAL_CONFIG: PlaygroundConfig = {
   eyeScale: 1,
   eyeDistance: 1,
   gazeLimit: 1,
+  expressiveness: 1.35,
+  expressionDuration: 620,
+  eyePerformance: true,
+  bodyPerformance: true,
   pointer: true,
   blink: true,
   auto: false,
@@ -88,6 +96,7 @@ export function StatusFace() {
       eyeScale={${formatNumber(config.eyeScale)}}
       eyeDistance={${formatNumber(config.eyeDistance)}}
       gazeLimit={${formatNumber(config.gazeLimit)}}
+      expressionMotion={{ intensity: ${formatNumber(config.expressiveness)}, duration: ${config.expressionDuration}, eyes: ${config.eyePerformance}, body: ${config.bodyPerformance} }}
       clickAction="random"
     />
   );
@@ -95,7 +104,19 @@ export function StatusFace() {
 }
 
 export function createJson(config: PlaygroundConfig) {
-  const { stiffness, damping, mass, pointer, blink, auto, ...visual } = config;
+  const {
+    stiffness,
+    damping,
+    mass,
+    pointer,
+    blink,
+    auto,
+    expressiveness,
+    expressionDuration,
+    eyePerformance,
+    bodyPerformance,
+    ...visual
+  } = config;
   return JSON.stringify(
     {
       ...visual,
@@ -103,6 +124,12 @@ export function createJson(config: PlaygroundConfig) {
       pointer: { enabled: pointer, strength: 1 },
       blink: { enabled: blink },
       auto: { enabled: auto },
+      expressionMotion: {
+        intensity: expressiveness,
+        duration: expressionDuration,
+        eyes: eyePerformance,
+        body: bodyPerformance,
+      },
     },
     null,
     2,

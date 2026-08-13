@@ -1,4 +1,8 @@
 import type { ShapeName } from "./geometry";
+import {
+  DEFAULT_EXPRESSION_MOTION,
+  type ExpressionMotionConfig,
+} from "./expression-motion";
 import type { ExpressionName } from "./presets";
 
 export type SpringConfig = {
@@ -34,6 +38,7 @@ export type MoodieConfig = {
   blink: BlinkConfig;
   pointer: PointerConfig;
   auto: AutoConfig;
+  expressionMotion: ExpressionMotionConfig;
 };
 
 export const DEFAULT_CONFIG: MoodieConfig = {
@@ -46,6 +51,7 @@ export const DEFAULT_CONFIG: MoodieConfig = {
   blink: { enabled: true, interval: [2600, 6200], duration: 150 },
   pointer: { enabled: true, strength: 1 },
   auto: { enabled: false, interval: [2400, 5200] },
+  expressionMotion: { ...DEFAULT_EXPRESSION_MOTION },
 };
 
 const clamp = (

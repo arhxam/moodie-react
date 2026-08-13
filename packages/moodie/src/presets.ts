@@ -2,6 +2,14 @@ import type { EyeGeometry } from "./geometry";
 
 export type ReactionName = "bounce" | "squash" | "tilt" | "spin" | "none";
 
+export type ExpressionPerformance = {
+  x?: number;
+  y?: number;
+  rotate?: number;
+  scaleX?: number;
+  scaleY?: number;
+};
+
 export type ExpressionDefinition = {
   label: string;
   left: EyeGeometry;
@@ -13,6 +21,7 @@ export type ExpressionDefinition = {
     y?: number;
   };
   reaction?: ReactionName;
+  performance?: ExpressionPerformance;
 };
 
 export type ExpressionMap = Record<string, ExpressionDefinition>;
@@ -33,6 +42,7 @@ export const expressionPresets = {
     left: eye(72, 94, 22, 42, -5),
     right: eye(128, 94, 22, 42, 5),
     reaction: "none",
+    performance: { y: -2, scaleY: 0.92 },
   },
   happy: {
     label: "Happy",
@@ -40,6 +50,7 @@ export const expressionPresets = {
     right: eye(128, 100, 31, 13, -7, 0.38),
     body: { y: -2 },
     reaction: "bounce",
+    performance: { y: -5, rotate: 2, scaleX: 1.08, scaleY: 1.12 },
   },
   excited: {
     label: "Excited",
@@ -47,6 +58,7 @@ export const expressionPresets = {
     right: eye(130, 96, 29, 53, 9, 0.92),
     body: { scaleX: 1.03, scaleY: 0.97 },
     reaction: "bounce",
+    performance: { y: -6, rotate: -2, scaleX: 1.12, scaleY: 1.14 },
   },
   sleepy: {
     label: "Sleepy",
@@ -54,6 +66,7 @@ export const expressionPresets = {
     right: eye(128, 100, 35, 8, -2, 0.25),
     body: { rotate: -3, y: 4 },
     reaction: "tilt",
+    performance: { x: -3, y: 3, rotate: -5, scaleY: 0.82 },
   },
   sad: {
     label: "Sad",
@@ -61,12 +74,14 @@ export const expressionPresets = {
     right: eye(128, 103, 24, 35, 17, 0.72),
     body: { y: 4, scaleX: 0.98, scaleY: 1.02 },
     reaction: "squash",
+    performance: { y: 5, rotate: -2, scaleX: 0.94, scaleY: 0.88 },
   },
   worried: {
     label: "Worried",
     left: eye(72, 96, 22, 38, 16, 0.76),
     right: eye(128, 96, 22, 38, -16, 0.76),
     reaction: "tilt",
+    performance: { x: -5, y: -2, rotate: -7, scaleX: 0.91, scaleY: 1.08 },
   },
   thinking: {
     label: "Thinking",
@@ -74,6 +89,7 @@ export const expressionPresets = {
     right: eye(126, 101, 32, 15, -24, 0.46),
     body: { rotate: -4 },
     reaction: "tilt",
+    performance: { x: 7, y: -4, rotate: -6, scaleX: 1.08, scaleY: 0.86 },
   },
   love: {
     label: "Love",
@@ -81,6 +97,7 @@ export const expressionPresets = {
     right: eye(128, 96, 34, 34, 8, 0.18, 0.38),
     body: { scaleX: 1.02, scaleY: 0.98 },
     reaction: "bounce",
+    performance: { y: -5, rotate: 3, scaleX: 1.16, scaleY: 1.16 },
   },
   curious: {
     label: "Curious",
@@ -88,6 +105,7 @@ export const expressionPresets = {
     right: eye(130, 100, 31, 47, 10, 0.84),
     body: { rotate: 5 },
     reaction: "tilt",
+    performance: { x: 6, y: -4, rotate: 7, scaleX: 1.08, scaleY: 1.05 },
   },
   surprised: {
     label: "Surprised",
@@ -95,6 +113,7 @@ export const expressionPresets = {
     right: eye(128, 95, 34, 52, 0, 1),
     body: { scaleX: 0.96, scaleY: 1.04 },
     reaction: "bounce",
+    performance: { y: -7, scaleX: 1.18, scaleY: 1.2 },
   },
   focused: {
     label: "Focused",
@@ -102,6 +121,7 @@ export const expressionPresets = {
     right: eye(128, 97, 31, 13, -14, 0.4),
     body: { scaleX: 1.01 },
     reaction: "squash",
+    performance: { y: 2, scaleX: 1.12, scaleY: 0.72 },
   },
   cheeky: {
     label: "Cheeky",
@@ -109,12 +129,14 @@ export const expressionPresets = {
     right: eye(128, 95, 21, 42, 8, 0.84),
     body: { rotate: 4 },
     reaction: "tilt",
+    performance: { x: 5, y: -2, rotate: 7, scaleX: 1.08, scaleY: 0.78 },
   },
   dizzy: {
     label: "Dizzy",
     left: eye(70, 96, 37, 12, 42, 0.25),
     right: eye(130, 96, 37, 12, -42, 0.25),
     reaction: "spin",
+    performance: { x: -5, rotate: 14, scaleX: 1.12, scaleY: 0.82 },
   },
   calm: {
     label: "Calm",
@@ -122,6 +144,7 @@ export const expressionPresets = {
     right: eye(128, 99, 34, 9, 0, 0.3),
     body: { scaleX: 1.01, scaleY: 0.99 },
     reaction: "none",
+    performance: { y: 1, scaleX: 1.04, scaleY: 0.82 },
   },
   wink: {
     label: "Wink",
@@ -129,6 +152,7 @@ export const expressionPresets = {
     right: eye(128, 95, 23, 43, 4, 0.85),
     body: { rotate: 3 },
     reaction: "bounce",
+    performance: { x: 5, y: -3, rotate: 8, scaleX: 1.12, scaleY: 0.8 },
   },
   alert: {
     label: "Alert",
@@ -136,6 +160,7 @@ export const expressionPresets = {
     right: eye(128, 91, 21, 48, 3, 0.9),
     body: { y: -3, scaleY: 1.02 },
     reaction: "bounce",
+    performance: { y: -7, scaleX: 0.9, scaleY: 1.2 },
   },
 } satisfies ExpressionMap;
 

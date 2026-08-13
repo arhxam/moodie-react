@@ -17,7 +17,9 @@ Built-in expressions: neutral, happy, excited, sleepy, sad, worried, thinking, l
 
 Shapes: circle, squircle, blob, pebble, diamond.
 
-Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
+Expression changes automatically combine a body reaction and an expression-specific eye performance. Configure this with expressionMotion or disable it with expressionMotion={false}.
+
+Main props: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
 
 Controlled interaction:
 

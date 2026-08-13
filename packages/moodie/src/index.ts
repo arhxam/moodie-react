@@ -24,8 +24,21 @@ export type {
   ExpressionDefinition,
   ExpressionMap,
   ExpressionName,
+  ExpressionPerformance,
   ReactionName,
 } from "./presets";
+
+export {
+  DEFAULT_EXPRESSION_MOTION,
+  createExpressionCue,
+  createReactionCue,
+  normalizeExpressionMotion,
+} from "./expression-motion";
+export type {
+  ExpressionCue,
+  ExpressionMotionConfig,
+  ReactionCue,
+} from "./expression-motion";
 
 export {
   createClosedPath,

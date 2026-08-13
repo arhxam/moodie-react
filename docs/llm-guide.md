@@ -104,6 +104,7 @@ const [expression, setExpression] = useState("curious");
 - `flip?: boolean`
 - `motion?: "spring" | "gentle" | "snappy" | "bouncy" | "tween" | "none"`
 - `spring?: { stiffness?: number; damping?: number; mass?: number }`
+- `expressionMotion?: boolean | { enabled?: boolean; intensity?: number; duration?: number; eyes?: boolean; body?: boolean }`
 - `blink?: boolean | { enabled?: boolean; interval?: [minMs, maxMs]; duration?: ms }`
 - `pointer?: boolean | { enabled?: boolean; strength?: number }`
 - `auto?: boolean | { enabled?: boolean; expressions?: string[]; interval?: [minMs, maxMs] }`
@@ -133,6 +134,13 @@ type ExpressionDefinition = {
   right: EyeGeometry;
   body?: { rotate?: number; scaleX?: number; scaleY?: number; y?: number };
   reaction?: "bounce" | "squash" | "tilt" | "spin" | "none";
+  performance?: {
+    x?: number;
+    y?: number;
+    rotate?: number;
+    scaleX?: number;
+    scaleY?: number;
+  };
 };
 ```
 

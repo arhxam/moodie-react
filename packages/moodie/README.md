@@ -62,10 +62,16 @@ Boolean shorthands work for `pointer`, `blink`, and `auto`.
 ## Motion
 
 ```tsx
-<Moodie motion="bouncy" spring={{ stiffness: 260, damping: 14, mass: 0.75 }} />
+<Moodie
+  motion="bouncy"
+  spring={{ stiffness: 260, damping: 14, mass: 0.75 }}
+  expressionMotion={{ intensity: 1.35, duration: 620 }}
+/>
 ```
 
-Use `motion="none"` for no transitions. The default `reducedMotion="system"` follows the user's OS setting. `"always"` and `"never"` are available when a host application needs an explicit policy.
+Every expression change performs a short body reaction and an expression-specific eye movement before settling. Tune it with `expressionMotion`, or pass `false` to disable the performance while keeping path morphing. `eyes` and `body` can also be toggled independently.
+
+Use `motion="none"` for no transitions. The default `reducedMotion="system"` follows the user's OS setting. `"always"` and `"never"` are available when a host application needs an explicit policy; reduced motion suppresses expression performances.
 
 ## Custom expressions
 
@@ -80,6 +86,7 @@ const skeptical = createExpression({
   right: { x: 130, y: 94, width: 20, height: 38, rotation: -8, curve: 0.8 },
   body: { rotate: -3 },
   reaction: "tilt",
+  performance: { x: 6, y: -3, rotate: 7, scaleY: 0.82 },
 });
 
 <Moodie expression="skeptical" expressions={{ skeptical }} />;
@@ -121,6 +128,7 @@ ref.current?.setExpression("alert");
 | `eyeColor`          | CSS color                                               | `#0a0a0a`  |
 | `size`              | `number \| string`                                      | `240`      |
 | `motion`            | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
+| `expressionMotion`  | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
 | `pointer`           | `boolean \| PointerConfig`                              | `true`     |
 | `blink`             | `boolean \| BlinkConfig`                                | `true`     |
 | `auto`              | `boolean \| AutoConfig`                                 | `false`    |

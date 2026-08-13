@@ -38,6 +38,37 @@ describe("geometry", () => {
     expect(new Set(paths).size).toBe(paths.length);
   });
 
+  it("keeps every body silhouette centered and safely inside its view box", () => {
+    for (const shape of ["circle", "squircle", "blob", "pebble", "diamond"]) {
+      const numbers = createShapePath(shape)
+        .match(/-?\d+(?:\.\d+)?/g)
+        ?.map(Number);
+      expect(numbers, `${shape} path coordinates`).toBeDefined();
+
+      const xs = numbers!.filter((_, index) => index % 2 === 0);
+      const ys = numbers!.filter((_, index) => index % 2 === 1);
+      const bounds = {
+        left: Math.min(...xs),
+        right: Math.max(...xs),
+        top: Math.min(...ys),
+        bottom: Math.max(...ys),
+      };
+
+      expect(bounds.left, `${shape} left bound`).toBeGreaterThanOrEqual(7);
+      expect(bounds.right, `${shape} right bound`).toBeLessThanOrEqual(193);
+      expect(bounds.top, `${shape} top bound`).toBeGreaterThanOrEqual(7);
+      expect(bounds.bottom, `${shape} bottom bound`).toBeLessThanOrEqual(193);
+      expect(
+        (bounds.left + bounds.right) / 2,
+        `${shape} horizontal center`,
+      ).toBeCloseTo(100, 0);
+      expect(
+        (bounds.top + bounds.bottom) / 2,
+        `${shape} vertical center`,
+      ).toBeCloseTo(100, 0);
+    }
+  });
+
   it("keeps path topology stable across eye geometry", () => {
     const upright = createEyePath({ width: 22, height: 48, rotation: -8 });
     const sleepy = createEyePath({

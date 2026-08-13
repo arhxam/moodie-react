@@ -157,6 +157,48 @@ export function ConfigInspector({
             </SelectContent>
           </Select>
         </ControlRow>
+        <ControlRow
+          label="Expressiveness"
+          value={`${config.expressiveness.toFixed(2)}×`}
+          vertical
+        >
+          <Slider
+            aria-label="Expression intensity"
+            min={0}
+            max={2}
+            step={0.05}
+            value={[config.expressiveness]}
+            onValueChange={([value]) => update("expressiveness", value)}
+          />
+        </ControlRow>
+        <ControlRow
+          label="Performance time"
+          value={`${config.expressionDuration}ms`}
+          vertical
+        >
+          <Slider
+            aria-label="Expression duration"
+            min={180}
+            max={1200}
+            step={20}
+            value={[config.expressionDuration]}
+            onValueChange={([value]) => update("expressionDuration", value)}
+          />
+        </ControlRow>
+        <ControlRow label="Eye performance">
+          <Switch
+            checked={config.eyePerformance}
+            onCheckedChange={(value) => update("eyePerformance", value)}
+            aria-label="Eye performance"
+          />
+        </ControlRow>
+        <ControlRow label="Body performance">
+          <Switch
+            checked={config.bodyPerformance}
+            onCheckedChange={(value) => update("bodyPerformance", value)}
+            aria-label="Body performance"
+          />
+        </ControlRow>
         <ControlRow label="Stiffness" value={String(config.stiffness)} vertical>
           <Slider
             aria-label="Spring stiffness"

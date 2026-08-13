@@ -124,4 +124,32 @@ describe("Moodie", () => {
       "true",
     );
   });
+
+  it("renders a dedicated expression performance layer by default", () => {
+    render(<Moodie expression="worried" blink={false} />);
+
+    const face = screen.getByRole("img");
+    expect(face).toHaveAttribute("data-expression-motion", "true");
+    expect(face.querySelector("[data-part='expression-cue']")).not.toBeNull();
+  });
+
+  it("allows automatic expression performances to be disabled", () => {
+    render(
+      <Moodie expression="happy" expressionMotion={false} blink={false} />,
+    );
+
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-expression-motion",
+      "false",
+    );
+  });
+
+  it("suppresses expression performances in the no-motion preset", () => {
+    render(<Moodie expression="excited" motion="none" blink={false} />);
+
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-expression-motion",
+      "false",
+    );
+  });
 });

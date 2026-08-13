@@ -31,6 +31,12 @@ const rows = [
   ],
   ["spring", "SpringConfig", "210 / 22 / 0.8", "Stiffness, damping, and mass."],
   [
+    "expressionMotion",
+    "boolean | config",
+    "true",
+    "Body reaction and semantic eye performance on expression changes.",
+  ],
+  [
     "pointer / blink / auto",
     "boolean | config",
     "mixed",
