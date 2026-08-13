@@ -42,9 +42,27 @@ export const EYE_ANIMATION_NAMES = [
   "squint",
   "wide",
   "flutter",
+  "roll",
+  "vanish",
+  "orbit",
+  "doubleTake",
+  "recoil",
+  "droop",
+  "shake",
 ] as const;
 
 export type EyeAnimationName = (typeof EYE_ANIMATION_NAMES)[number];
+export type ExpressionEyeTrigger = EyeAnimationName | "none";
+
+export const DEFAULT_EXPRESSION_EYE_TRIGGERS: Readonly<
+  Record<string, ExpressionEyeTrigger>
+> = {
+  cheeky: "roll",
+  dizzy: "orbit",
+  surprised: "recoil",
+  sleepy: "droop",
+  alert: "doubleTake",
+};
 
 export type EyeMotionConfig = {
   enabled: boolean;
@@ -55,6 +73,7 @@ export type EyeMotionConfig = {
   hover: EyeAnimationName | "none";
   hoverReaction: ReactionName;
   contextMenuBlink: boolean;
+  expressionTriggers: Readonly<Record<string, ExpressionEyeTrigger>>;
 };
 
 export type AutoConfig = {
@@ -104,6 +123,7 @@ export const DEFAULT_CONFIG: MoodieConfig = {
     hover: "notice",
     hoverReaction: "tilt",
     contextMenuBlink: true,
+    expressionTriggers: { ...DEFAULT_EXPRESSION_EYE_TRIGGERS },
   },
   auto: { enabled: false, interval: [2400, 5200] },
   expressionMotion: { ...DEFAULT_EXPRESSION_MOTION },
@@ -169,13 +189,33 @@ const reactionNames: readonly ReactionName[] = [
 export function normalizeEyeMotion(
   config: boolean | Partial<EyeMotionConfig> = true,
 ): EyeMotionConfig {
-  if (typeof config === "boolean")
-    return { ...DEFAULT_CONFIG.eyeMotion, enabled: config };
+  if (typeof config === "boolean") {
+    return {
+      ...DEFAULT_CONFIG.eyeMotion,
+      enabled: config,
+      expressionTriggers: {
+        ...DEFAULT_CONFIG.eyeMotion.expressionTriggers,
+      },
+    };
+  }
   const requestedAnimations =
     config.idleAnimations ?? DEFAULT_CONFIG.eyeMotion.idleAnimations;
   const idleAnimations = [
     ...new Set(requestedAnimations.filter(isEyeAnimation)),
   ];
+  const expressionTriggers = {
+    ...DEFAULT_CONFIG.eyeMotion.expressionTriggers,
+  };
+  for (const [expression, trigger] of Object.entries(
+    config.expressionTriggers ?? {},
+  )) {
+    if (
+      expression.trim().length > 0 &&
+      (isEyeAnimation(trigger) || trigger === "none")
+    ) {
+      expressionTriggers[expression] = trigger;
+    }
+  }
   return {
     enabled: config.enabled ?? true,
     idle: config.idle ?? true,
@@ -201,6 +241,7 @@ export function normalizeEyeMotion(
       ? (config.hoverReaction as ReactionName)
       : DEFAULT_CONFIG.eyeMotion.hoverReaction,
     contextMenuBlink: config.contextMenuBlink ?? true,
+    expressionTriggers,
   };
 }
 
