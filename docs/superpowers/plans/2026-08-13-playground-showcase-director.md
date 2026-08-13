@@ -27,6 +27,7 @@
 ### Task 1: Curated showcase sequence
 
 **Files:**
+
 - Create: `apps/demo/src/lib/showcase.ts`
 - Create: `apps/demo/src/lib/showcase.test.ts`
 - Modify: `apps/demo/src/lib/playground.ts`
@@ -69,6 +70,7 @@ git commit -m "feat: add curated playground showcase sequence"
 ### Task 2: Deterministic director lifecycle
 
 **Files:**
+
 - Create: `apps/demo/src/components/playground/use-showcase-director.ts`
 - Create: `apps/demo/src/components/playground/use-showcase-director.test.tsx`
 
@@ -77,7 +79,9 @@ git commit -m "feat: add curated playground showcase sequence"
 Use `renderHook` and `vi.useFakeTimers()` to assert the initial state is running at index zero; the current hold advances exactly once; `pauseFor()` freezes advancement and resumes after `SHOWCASE_PAUSE_MS`; calling `pauseFor()` again replaces the resume timeout; `close()` remains closed after arbitrary time; `enabled: false` suppresses advancement; and unmount clears timers.
 
 ```ts
-const { result } = renderHook(() => useShowcaseDirector({ holds: [1200, 1400] }));
+const { result } = renderHook(() =>
+  useShowcaseDirector({ holds: [1200, 1400] }),
+);
 act(() => vi.advanceTimersByTime(1200));
 expect(result.current.index).toBe(1);
 act(() => result.current.pauseFor(3000));
@@ -110,6 +114,7 @@ git commit -m "feat: add showcase director lifecycle"
 ### Task 3: Playground interaction and close handoff
 
 **Files:**
+
 - Modify: `apps/demo/src/components/playground/playground.tsx`
 - Modify: `apps/demo/src/index.css`
 
@@ -147,6 +152,7 @@ git commit -m "feat: bring the playground to life automatically"
 ### Task 4: Smooth core palette transitions
 
 **Files:**
+
 - Modify: `packages/moodie/src/moodie.tsx`
 - Modify: `packages/moodie/src/moodie.test.tsx`
 
@@ -180,6 +186,7 @@ git commit -m "feat: animate Moodie palette transitions"
 ### Task 5: Release documentation and complete verification
 
 **Files:**
+
 - Modify: `packages/moodie/package.json`
 - Modify: `apps/demo/package.json`
 - Modify: `package-lock.json`

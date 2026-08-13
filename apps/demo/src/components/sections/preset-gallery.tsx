@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DISPLAY_EXPRESSIONS } from "@/lib/playground";
 
 const galleryColors = [
-  "#5b6cff",
+  "#dfff5b",
   "#ffca3a",
   "#ff6b6b",
   "#7bdcb5",

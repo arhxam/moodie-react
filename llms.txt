@@ -11,7 +11,7 @@ License: MIT
 
 ```tsx
 import { Moodie } from "@moodie/react";
-<Moodie expression="happy" color="#5b6cff" />;
+<Moodie expression="happy" color="#dfff5b" />;
 ```
 
 ## Key capabilities

@@ -158,8 +158,8 @@ describe("configuration normalization", () => {
     expect(DEFAULT_CONFIG).toMatchObject({
       expression: "neutral",
       shape: "circle",
-      color: "#5b6cff",
-      eyeColor: "#0a0a0a",
+      color: "#dfff5b",
+      eyeColor: "#151515",
       size: 240,
       expressionMotion: {
         enabled: true,

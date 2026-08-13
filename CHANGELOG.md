@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.5.0 — 2026-08-13
+
+- Added an authored playground showcase that continuously demonstrates gaze, expressions, body forms, eye scale and spacing, vivid palettes, and secondary eye performances without requiring hover.
+- Made pointer entry and manual controls temporarily pause the showcase, while face clicks keep their reaction and restart the quiet period.
+- Added a visible Close demo handoff that permanently stops choreography for the current session and leaves the complete configurator in manual control.
+- Changed the package and playground default palette to high-contrast acid lime and deep ink.
+- Added smooth body and eye fill interpolation, reduced-motion-safe autoplay suppression, deterministic lifecycle cleanup, and regression coverage for pause/resume/close behavior.
+
 ## 0.4.0 — 2026-08-13
 
 - Added seven secondary eye performances: roll, vanish, orbit, double-take, recoil, droop, and shake.

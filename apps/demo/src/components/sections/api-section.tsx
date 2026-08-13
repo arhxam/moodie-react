@@ -31,7 +31,7 @@ const rows = [
     '"circle" / all',
     "Starting form and double-right-click cycle order.",
   ],
-  ["color / eyeColor", "string", "#5b6cff / #0a0a0a", "Any valid CSS color."],
+  ["color / eyeColor", "string", "#dfff5b / #151515", "Any valid CSS color."],
   [
     "motion",
     "MotionPreset",

@@ -35,9 +35,7 @@ describe("Playground showcase", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close demo" }));
     const manualExpression = preview.textContent;
     expect(screen.getByText("Manual mode")).toBeTruthy();
-    expect(
-      screen.queryByRole("button", { name: "Close demo" }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Close demo" })).toBeNull();
 
     act(() => vi.advanceTimersByTime(60_000));
     expect(preview.textContent).toBe(manualExpression);

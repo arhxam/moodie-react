@@ -15,7 +15,7 @@ React 18 and 19 are supported through peer dependencies.
 ```tsx
 import { Moodie } from "@moodie/react";
 
-<Moodie expression="happy" color="#5b6cff" />;
+<Moodie expression="happy" color="#dfff5b" />;
 ```
 
 The component renders one accessible SVG with a body path and two eye paths. Set `ariaLabel` to describe its role in context.
@@ -197,8 +197,8 @@ ref.current?.setExpression("alert");
 | `shapeOrder`              | `readonly ShapeName[]`                                  | all shapes |
 | `onShapeChange`           | `(shape: ShapeName) => void`                            | —          |
 | `doubleContextShapeCycle` | `boolean`                                               | `false`    |
-| `color`                   | CSS color                                               | `#5b6cff`  |
-| `eyeColor`                | CSS color                                               | `#0a0a0a`  |
+| `color`                   | CSS color                                               | `#dfff5b`  |
+| `eyeColor`                | CSS color                                               | `#151515`  |
 | `size`                    | `number \| string`                                      | `240`      |
 | `motion`                  | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
 | `expressionMotion`        | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
