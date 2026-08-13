@@ -129,6 +129,11 @@ const neutralTransform = {
   scaleY: 1,
 };
 
+const neutralEyeTransform = {
+  ...neutralTransform,
+  opacity: 1,
+};
+
 export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
   function Moodie(providedProps, forwardedRef) {
     const providerDefaults = useMoodieDefaults();
@@ -189,6 +194,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const eyeAnimationTimeout = useRef<ReturnType<typeof setTimeout> | null>(
       null,
     );
+    const eyeAnimationPlaybackId = useRef(0);
     const lastIdleEyeAnimation = useRef<EyeAnimationName | null>(null);
     const lastContextMenuAt = useRef(0);
     const systemReducedMotion = useReducedMotion();
@@ -248,6 +254,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.hover,
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.hoverReaction,
         typeof eyeMotion === "boolean" ? undefined : eyeMotion.contextMenuBlink,
+        typeof eyeMotion === "boolean"
+          ? undefined
+          : JSON.stringify(eyeMotion.expressionTriggers),
       ],
     );
     const autoConfig = useMemo(
@@ -438,17 +447,18 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const playEyeAnimation = useCallback(
       (animation: EyeAnimationName = "notice") => {
         if (!eyeMotionEnabled) return;
+        const playbackId = ++eyeAnimationPlaybackId.current;
         if (eyeAnimationTimeout.current)
           clearTimeout(eyeAnimationTimeout.current);
         const cue = createEyeAnimationCue(animation, eyeMotionConfig.intensity);
         eyeControls.stop();
-        eyeControls.set(neutralTransform);
         setActiveEyeAnimation(animation);
         void eyeControls.start(cue as TargetAndTransition);
-        eyeAnimationTimeout.current = setTimeout(
-          () => setActiveEyeAnimation(null),
-          cue.transition.duration * 1000,
-        );
+        eyeAnimationTimeout.current = setTimeout(() => {
+          if (eyeAnimationPlaybackId.current !== playbackId) return;
+          setActiveEyeAnimation(null);
+          eyeAnimationTimeout.current = null;
+        }, cue.transition.duration * 1000);
       },
       [eyeControls, eyeMotionConfig.intensity, eyeMotionEnabled],
     );
@@ -577,15 +587,25 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     useEffect(() => {
       if (eyeMotionEnabled) return;
+      eyeAnimationPlaybackId.current += 1;
+      if (eyeAnimationTimeout.current) {
+        clearTimeout(eyeAnimationTimeout.current);
+        eyeAnimationTimeout.current = null;
+      }
       eyeControls.stop();
-      eyeControls.set(neutralTransform);
+      eyeControls.set(neutralEyeTransform);
       setActiveEyeAnimation(null);
     }, [eyeControls, eyeMotionEnabled]);
 
     useEffect(() => {
       const previous = previousExpression.current;
       previousExpression.current = currentExpression;
-      if (previous === currentExpression || !expressionMotionEnabled) return;
+      if (previous === currentExpression) return;
+
+      const eyeTrigger = eyeMotionConfig.expressionTriggers[currentExpression];
+      if (eyeTrigger && eyeTrigger !== "none") playEyeAnimation(eyeTrigger);
+
+      if (!expressionMotionEnabled) return;
 
       if (expressionMotionConfig.eyes) {
         leftExpressionControls.stop();
@@ -611,7 +631,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       rightExpressionControls,
       expressionMotionConfig,
       expressionMotionEnabled,
+      eyeMotionConfig.expressionTriggers,
       playReaction,
+      playEyeAnimation,
     ]);
 
     useEffect(() => {
@@ -713,6 +735,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
 
     useEffect(
       () => () => {
+        eyeAnimationPlaybackId.current += 1;
         if (blinkTimeout.current) clearTimeout(blinkTimeout.current);
         if (eyeAnimationTimeout.current)
           clearTimeout(eyeAnimationTimeout.current);

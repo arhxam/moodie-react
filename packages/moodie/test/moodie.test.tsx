@@ -217,6 +217,83 @@ describe("Moodie", () => {
     expect(disabledContextMenu.defaultPrevented).toBe(false);
   });
 
+  it("exposes every secondary eye animation through the imperative handle", () => {
+    const ref = createRef<MoodieHandle>();
+    render(<Moodie ref={ref} eyeMotion={{ idle: false }} blink={false} />);
+
+    for (const animation of [
+      "roll",
+      "vanish",
+      "orbit",
+      "doubleTake",
+      "recoil",
+      "droop",
+      "shake",
+    ] as const) {
+      act(() => ref.current?.animateEyes(animation));
+      expect(screen.getByRole("img")).toHaveAttribute(
+        "data-eye-animation",
+        animation,
+      );
+    }
+  });
+
+  it("keeps the latest interrupted cue active until its own completion", () => {
+    vi.useFakeTimers();
+    const ref = createRef<MoodieHandle>();
+    render(<Moodie ref={ref} eyeMotion={{ idle: false }} blink={false} />);
+
+    act(() => ref.current?.animateEyes("notice"));
+    act(() => vi.advanceTimersByTime(240));
+    act(() => ref.current?.animateEyes("vanish"));
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "vanish",
+    );
+
+    act(() => vi.advanceTimersByTime(580));
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "data-eye-animation",
+      "none",
+    );
+  });
+
+  it("triggers a mapped secondary performance after expression changes", () => {
+    const { rerender } = render(
+      <Moodie expression="neutral" eyeMotion={{ idle: false }} blink={false} />,
+    );
+    const face = screen.getByRole("img");
+    expect(face).toHaveAttribute("data-eye-animation", "none");
+
+    rerender(
+      <Moodie expression="cheeky" eyeMotion={{ idle: false }} blink={false} />,
+    );
+    expect(face).toHaveAttribute("data-eye-animation", "roll");
+  });
+
+  it("supports expression cue overrides and none suppression", () => {
+    const eyeMotion = {
+      idle: false,
+      expressionTriggers: { cheeky: "shake", sleepy: "none" },
+    } as const;
+    const { rerender } = render(
+      <Moodie expression="neutral" eyeMotion={eyeMotion} blink={false} />,
+    );
+    const face = screen.getByRole("img");
+
+    rerender(
+      <Moodie expression="cheeky" eyeMotion={eyeMotion} blink={false} />,
+    );
+    expect(face).toHaveAttribute("data-eye-animation", "shake");
+
+    rerender(
+      <Moodie expression="sleepy" eyeMotion={eyeMotion} blink={false} />,
+    );
+    expect(face).toHaveAttribute("data-eye-animation", "shake");
+  });
+
   it("exposes imperative eye animations and reduced-motion suppression", () => {
     const ref = createRef<MoodieHandle>();
     const { rerender } = render(<Moodie ref={ref} eyeMotion blink={false} />);
