@@ -1,6 +1,6 @@
 {
   "name": "@moodie/react",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A tiny, deeply configurable animated face for React.",
   "license": "MIT",
   "type": "module",
