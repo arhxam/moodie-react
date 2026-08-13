@@ -158,6 +158,7 @@ describe("configuration normalization", () => {
         bodyFollow: 0.28,
         inertia: 0.4,
         maxTurn: 42,
+        volumePreservation: 0.45,
       },
       eyeMotion: {
         enabled: true,

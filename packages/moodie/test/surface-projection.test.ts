@@ -42,6 +42,7 @@ describe("surface projection", () => {
       bodyFollow: 0.28,
       inertia: 0.4,
       maxTurn: 42,
+      volumePreservation: 0.45,
     });
     expect(
       normalizeSurface({
@@ -51,6 +52,7 @@ describe("surface projection", () => {
         bodyFollow: 8,
         inertia: -4,
         maxTurn: 200,
+        volumePreservation: 9,
       }),
     ).toMatchObject({
       perspective: 2,
@@ -59,6 +61,7 @@ describe("surface projection", () => {
       bodyFollow: 1,
       inertia: 0,
       maxTurn: 70,
+      volumePreservation: 1,
     });
   });
 
@@ -75,6 +78,7 @@ describe("surface projection", () => {
     expect(pathCommandCount(center.path)).toBe(12);
     expect(center.compression).toBe(1);
     expect(center.depthScale).toBe(1);
+    expect(center.tangentScale).toBe(1);
     expect(center.center[0]).toBeCloseTo(72, 2);
     expect(center.center[1]).toBeCloseTo(78, 2);
   });
@@ -83,10 +87,12 @@ describe("surface projection", () => {
     const right = project({ x: 1, y: 0 });
     const bottom = project({ x: 0, y: 1 });
 
-    expect(right.compression).toBeLessThan(0.7);
+    expect(right.compression).toBeGreaterThan(0.6);
+    expect(right.compression).toBeLessThan(0.8);
     expect(Math.abs(right.radialAxis[0])).toBeGreaterThan(0.99);
     expect(Math.abs(right.radialAxis[1])).toBeLessThan(0.01);
-    expect(bottom.compression).toBeLessThan(0.7);
+    expect(bottom.compression).toBeGreaterThan(0.6);
+    expect(bottom.compression).toBeLessThan(0.8);
     expect(Math.abs(bottom.radialAxis[0])).toBeLessThan(0.01);
     expect(Math.abs(bottom.radialAxis[1])).toBeGreaterThan(0.99);
     expect(right.path).not.toBe(bottom.path);
@@ -97,7 +103,51 @@ describe("surface projection", () => {
     const near = project({ x: 1, y: 0 }, 1);
 
     expect(near.compression).toBeLessThan(far.compression);
+    expect(near.compression).toBeGreaterThan(0.6);
     expect(near.depthScale).toBeLessThan(far.depthScale);
+    expect(near.tangentScale).toBeGreaterThan(1);
+    expect(near.tangentScale).toBeLessThanOrEqual(1.12);
+  });
+
+  it("makes volume preservation configurable and bounded", () => {
+    const withoutVolume = projectEyeOnSurface({
+      geometry,
+      side: 1,
+      gaze: { x: 1, y: 0 },
+      rangeX: 30,
+      rangeY: 24,
+      eyeScale: 1,
+      eyeDistance: 1,
+      turn: 0,
+      surface: normalizeSurface({ volumePreservation: 0 }),
+    });
+    const maximumVolume = projectEyeOnSurface({
+      geometry,
+      side: 1,
+      gaze: { x: 1, y: 0 },
+      rangeX: 30,
+      rangeY: 24,
+      eyeScale: 1,
+      eyeDistance: 1,
+      turn: 0,
+      surface: normalizeSurface({ volumePreservation: 1 }),
+    });
+
+    expect(withoutVolume.tangentScale).toBe(1);
+    expect(maximumVolume.tangentScale).toBeGreaterThan(1);
+    expect(maximumVolume.tangentScale).toBeLessThanOrEqual(1.12);
+  });
+
+  it("changes continuously when diagonal gaze crosses its dominant axis", () => {
+    const horizontalDominant = project({ x: 0.7, y: 0.69 }, 1);
+    const verticalDominant = project({ x: 0.69, y: 0.7 }, 1);
+
+    expect(
+      Math.abs(horizontalDominant.compression - verticalDominant.compression),
+    ).toBeLessThan(0.02);
+    expect(
+      Math.abs(horizontalDominant.tangentScale - verticalDominant.tangentScale),
+    ).toBeLessThan(0.02);
   });
 
   it("keeps extreme corner projections finite and inside the view box", () => {
