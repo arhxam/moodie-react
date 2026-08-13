@@ -3,9 +3,11 @@ import {
   type EyeAnimationName,
   type MoodieHandle,
 } from "@moodie/react";
-import { MousePointer2Icon, ShuffleIcon } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { MousePointer2Icon, ShuffleIcon, XIcon } from "lucide-react";
+import { useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -19,26 +21,50 @@ import {
   INITIAL_CONFIG,
   type PlaygroundConfig,
 } from "@/lib/playground";
+import {
+  SHOWCASE_PAUSE_MS,
+  SHOWCASE_STEPS,
+  applyShowcaseStep,
+} from "@/lib/showcase";
 
 import { CodeOutput } from "./code-output";
 import { ConfigInspector } from "./config-inspector";
 import { PresetRail } from "./preset-rail";
+import { useShowcaseDirector } from "./use-showcase-director";
+
+const SHOWCASE_HOLDS = SHOWCASE_STEPS.map((step) => step.hold);
 
 export function Playground() {
   const [config, setConfig] = useState<PlaygroundConfig>(INITIAL_CONFIG);
+  const [isPointerInside, setIsPointerInside] = useState(false);
   const [previewEyeAnimation, setPreviewEyeAnimation] =
     useState<EyeAnimationName>("roll");
   const moodieRef = useRef<MoodieHandle>(null);
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const director = useShowcaseDirector({
+    holds: SHOWCASE_HOLDS,
+    enabled: !prefersReducedMotion,
+  });
+  const showcaseStep = SHOWCASE_STEPS[director.index];
+
+  useEffect(() => {
+    setConfig((current) => applyShowcaseStep(current, showcaseStep));
+    moodieRef.current?.animateEyes(showcaseStep.cue);
+  }, [showcaseStep]);
 
   const update = useCallback(
     <Key extends keyof PlaygroundConfig>(
       key: Key,
       value: PlaygroundConfig[Key],
-    ) => setConfig((current) => ({ ...current, [key]: value })),
-    [],
+    ) => {
+      director.pauseFor(SHOWCASE_PAUSE_MS);
+      setConfig((current) => ({ ...current, [key]: value }));
+    },
+    [director],
   );
 
   const randomize = useCallback(() => {
+    director.pauseFor(SHOWCASE_PAUSE_MS);
     setConfig((current) => {
       const candidates = DISPLAY_EXPRESSIONS.filter(
         (expression) => expression !== current.expression,
@@ -48,11 +74,41 @@ export function Playground() {
         expression: candidates[Math.floor(Math.random() * candidates.length)],
       };
     });
-  }, []);
+  }, [director]);
 
   const playPreviewEyeAnimation = useCallback(() => {
+    director.pauseFor(SHOWCASE_PAUSE_MS);
     moodieRef.current?.animateEyes(previewEyeAnimation);
-  }, [previewEyeAnimation]);
+  }, [director, previewEyeAnimation]);
+
+  const reset = useCallback(() => {
+    director.pauseFor(SHOWCASE_PAUSE_MS);
+    setConfig(INITIAL_CONFIG);
+  }, [director]);
+
+  const selectPreviewEyeAnimation = useCallback(
+    (animation: EyeAnimationName) => {
+      director.pauseFor(SHOWCASE_PAUSE_MS);
+      setPreviewEyeAnimation(animation);
+    },
+    [director],
+  );
+
+  const handlePointerEnter = useCallback(() => {
+    setIsPointerInside(true);
+    director.pauseFor(SHOWCASE_PAUSE_MS);
+  }, [director]);
+
+  const handlePointerLeave = useCallback(() => {
+    setIsPointerInside(false);
+  }, []);
+
+  const demoStatus =
+    director.status === "closed"
+      ? "Manual mode"
+      : director.status === "paused"
+        ? "Demo paused"
+        : "Demo running";
 
   return (
     <section
@@ -68,12 +124,38 @@ export function Playground() {
         <div className="studio-preview">
           <div className="preview-meta">
             <span>Live preview</span>
-            <span className="preview-state">
-              <i style={{ background: config.color }} />
-              {config.expression}
-            </span>
+            <div className="preview-meta-actions">
+              <Badge
+                variant="outline"
+                className="preview-demo-status"
+                data-state={director.status}
+                aria-live="polite"
+              >
+                <i />
+                {demoStatus}
+              </Badge>
+              {director.status !== "closed" ? (
+                <Button
+                  variant="outline"
+                  size="xs"
+                  aria-label="Close demo"
+                  onClick={director.close}
+                >
+                  <XIcon data-icon="inline-start" />
+                  Close demo
+                </Button>
+              ) : null}
+              <span className="preview-state" data-testid="preview-state">
+                <i style={{ background: config.color }} />
+                {config.expression}
+              </span>
+            </div>
           </div>
-          <div className="face-stage">
+          <div
+            className="face-stage"
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
+          >
             <Moodie
               ref={moodieRef}
               expression={config.expression}
@@ -133,6 +215,11 @@ export function Playground() {
               }
               eyeScale={config.eyeScale}
               eyeDistance={config.eyeDistance}
+              gaze={
+                director.status === "running" && !isPointerInside
+                  ? showcaseStep.gaze
+                  : undefined
+              }
               gazeLimit={config.gazeLimit}
               expressionMotion={{
                 intensity: config.expressiveness,
@@ -144,6 +231,7 @@ export function Playground() {
                 stagger: config.eyeStagger,
               }}
               clickAction="random"
+              onClick={() => director.pauseFor(SHOWCASE_PAUSE_MS)}
               ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, right-click to blink, or double right-click to change shape.`}
             />
           </div>
@@ -175,9 +263,9 @@ export function Playground() {
             config={config}
             update={update}
             randomize={randomize}
-            reset={() => setConfig(INITIAL_CONFIG)}
+            reset={reset}
             previewEyeAnimation={previewEyeAnimation}
-            onPreviewEyeAnimationChange={setPreviewEyeAnimation}
+            onPreviewEyeAnimationChange={selectPreviewEyeAnimation}
             onPlayEyeAnimation={playPreviewEyeAnimation}
           />
           <CodeOutput config={config} />

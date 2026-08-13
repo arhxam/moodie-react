@@ -323,6 +323,29 @@ a {
   color: var(--muted-foreground);
   font-size: 12px;
 }
+.preview-meta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.preview-demo-status {
+  background: rgb(255 255 255 / 72%);
+  color: var(--muted-foreground);
+}
+.preview-demo-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8a8a8a;
+}
+.preview-demo-status[data-state="running"] i {
+  background: #94b800;
+  box-shadow: 0 0 0 3px rgb(148 184 0 / 14%);
+}
+.preview-demo-status[data-state="paused"] i {
+  background: #ff8a3d;
+}
 .preview-state {
   display: inline-flex;
   align-items: center;
@@ -879,6 +902,13 @@ a {
   .face-stage {
     min-height: 360px;
     padding: 32px 20px;
+  }
+  .preview-meta {
+    align-items: flex-start;
+  }
+  .preview-meta-actions {
+    flex-wrap: wrap;
+    max-width: 220px;
   }
   .stage-actions {
     align-items: stretch;
