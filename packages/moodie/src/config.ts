@@ -4,6 +4,14 @@ import {
   type ExpressionMotionConfig,
 } from "./expression-motion";
 import type { ExpressionName, ReactionName } from "./presets";
+import {
+  DEFAULT_SURFACE_CONFIG,
+  normalizeSurface,
+  type SurfaceConfig,
+} from "./surface-projection";
+
+export { normalizeSurface };
+export type { SurfaceConfig };
 
 export type SpringConfig = {
   stiffness: number;
@@ -64,6 +72,7 @@ export type MoodieConfig = {
   spring: SpringConfig;
   blink: BlinkConfig;
   pointer: PointerConfig;
+  surface: SurfaceConfig;
   eyeMotion: EyeMotionConfig;
   auto: AutoConfig;
   expressionMotion: ExpressionMotionConfig;
@@ -85,6 +94,7 @@ export const DEFAULT_CONFIG: MoodieConfig = {
     rangeY: 12,
     tilt: 3,
   },
+  surface: { ...DEFAULT_SURFACE_CONFIG },
   eyeMotion: {
     enabled: true,
     idle: true,

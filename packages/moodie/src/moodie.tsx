@@ -2,6 +2,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -25,12 +26,14 @@ import {
   normalizeEyeMotion,
   normalizePointer,
   normalizeSpring,
+  normalizeSurface,
   type AutoConfig,
   type BlinkConfig,
   type EyeAnimationName,
   type EyeMotionConfig,
   type PointerConfig,
   type SpringConfig,
+  type SurfaceConfig,
 } from "./config";
 import { createEyeAnimationCue } from "./eye-motion";
 import {
@@ -39,12 +42,7 @@ import {
   normalizeExpressionMotion,
   type ExpressionMotionConfig,
 } from "./expression-motion";
-import {
-  createEyePath,
-  createShapePath,
-  type EyeGeometry,
-  type ShapeName,
-} from "./geometry";
+import { createShapePath, type ShapeName } from "./geometry";
 import {
   EXPRESSION_NAMES,
   resolveExpression,
@@ -53,6 +51,7 @@ import {
   type ReactionName,
 } from "./presets";
 import { useMoodieDefaults } from "./provider";
+import { projectEyeOnSurface } from "./surface-projection";
 
 export type GazePoint = { x: number; y: number };
 export type MotionPreset =
@@ -91,6 +90,7 @@ export type MoodieProps = Omit<
   blink?: boolean | Partial<BlinkConfig>;
   eyeMotion?: boolean | Partial<EyeMotionConfig>;
   pointer?: boolean | Partial<PointerConfig>;
+  surface?: boolean | Partial<SurfaceConfig>;
   auto?: boolean | Partial<AutoConfig>;
   gaze?: GazePoint | false;
   gazeLimit?: number;
@@ -125,29 +125,6 @@ const neutralTransform = {
   scaleY: 1,
 };
 
-const transformedEye = (
-  geometry: EyeGeometry,
-  side: -1 | 1,
-  eyeScale: number,
-  eyeDistance: number,
-  turn: number,
-): EyeGeometry => {
-  const depth = Math.max(
-    0.12,
-    Math.cos((clamp(turn, -88, 88) * Math.PI) / 180),
-  );
-  const sourceX = geometry.x ?? (side === -1 ? 72 : 128);
-  return {
-    ...geometry,
-    x:
-      100 +
-      (sourceX - 100) * eyeDistance * depth +
-      Math.sin((turn * Math.PI) / 180) * 9,
-    width: (geometry.width ?? 24) * eyeScale * depth,
-    height: (geometry.height ?? 44) * eyeScale,
-  };
-};
-
 export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
   function Moodie(providedProps, forwardedRef) {
     const providerDefaults = useMoodieDefaults();
@@ -171,6 +148,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       blink = true,
       eyeMotion = true,
       pointer = true,
+      surface = true,
       auto = false,
       gaze,
       gazeLimit = 1,
@@ -196,6 +174,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const [activeEyeAnimation, setActiveEyeAnimation] =
       useState<EyeAnimationName | null>(null);
     const svgRef = useRef<SVGSVGElement | null>(null);
+    const surfaceClipId = `moodie-surface-${useId().replace(/:/g, "")}`;
     const blinkTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const eyeAnimationTimeout = useRef<ReturnType<typeof setTimeout> | null>(
       null,
@@ -228,6 +207,18 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         typeof pointer === "boolean" ? undefined : pointer.rangeX,
         typeof pointer === "boolean" ? undefined : pointer.rangeY,
         typeof pointer === "boolean" ? undefined : pointer.tilt,
+      ],
+    );
+    const surfaceConfig = useMemo(
+      () => normalizeSurface(surface),
+      [
+        typeof surface === "boolean" ? surface : surface.enabled,
+        typeof surface === "boolean" ? undefined : surface.perspective,
+        typeof surface === "boolean" ? undefined : surface.edgeCompression,
+        typeof surface === "boolean" ? undefined : surface.depth,
+        typeof surface === "boolean" ? undefined : surface.bodyFollow,
+        typeof surface === "boolean" ? undefined : surface.inertia,
+        typeof surface === "boolean" ? undefined : surface.maxTurn,
       ],
     );
     const eyeMotionConfig = useMemo(
@@ -281,6 +272,15 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         typeof expressionMotion === "boolean"
           ? undefined
           : expressionMotion.body,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.anticipation,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.overshoot,
+        typeof expressionMotion === "boolean"
+          ? undefined
+          : expressionMotion.stagger,
       ],
     );
 
@@ -290,6 +290,38 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         : motionPreset === "tween"
           ? { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const }
           : { type: "spring" as const, ...springConfig };
+    const eyeTransition =
+      shouldReduceMotion || motionPreset === "none"
+        ? { duration: 0 }
+        : motionPreset === "tween"
+          ? {
+              duration: 0.22 + surfaceConfig.inertia * 0.1,
+              ease: [0.22, 1, 0.36, 1] as const,
+            }
+          : {
+              type: "spring" as const,
+              stiffness:
+                springConfig.stiffness * (1.12 - surfaceConfig.inertia * 0.12),
+              damping:
+                springConfig.damping * (0.92 + surfaceConfig.inertia * 0.08),
+              mass: springConfig.mass * (0.72 + surfaceConfig.inertia * 0.28),
+            };
+    const bodyTransition =
+      shouldReduceMotion || motionPreset === "none"
+        ? { duration: 0 }
+        : motionPreset === "tween"
+          ? {
+              duration: 0.32 + surfaceConfig.inertia * 0.18,
+              ease: [0.22, 1, 0.36, 1] as const,
+            }
+          : {
+              type: "spring" as const,
+              stiffness:
+                springConfig.stiffness * (0.9 - surfaceConfig.inertia * 0.18),
+              damping:
+                springConfig.damping * (1 + surfaceConfig.inertia * 0.15),
+              mass: springConfig.mass * (1 + surfaceConfig.inertia * 0.8),
+            };
 
     const definition = resolveExpression(currentExpression, expressions);
     const expressionMotionEnabled =
@@ -298,30 +330,40 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       motionPreset !== "none";
     const eyeMotionEnabled =
       eyeMotionConfig.enabled && !shouldReduceMotion && motionPreset !== "none";
-    const leftPath = createEyePath(
-      transformedEye(
-        definition.left,
-        -1,
-        clamp(eyeScale, 0.4, 2),
-        clamp(eyeDistance, 0.5, 1.8),
-        turn,
-      ),
-    );
-    const rightPath = createEyePath(
-      transformedEye(
-        definition.right,
-        1,
-        clamp(eyeScale, 0.4, 2),
-        clamp(eyeDistance, 0.5, 1.8),
-        turn,
-      ),
-    );
     const bodyPath = createShapePath(shape);
     const activeGaze = gaze === false ? { x: 0, y: 0 } : (gaze ?? internalGaze);
     const normalizedGaze = {
       x: clamp(activeGaze.x, -1, 1),
       y: clamp(activeGaze.y, -1, 1),
     };
+    const limitedGaze = {
+      x: clamp(normalizedGaze.x * clamp(gazeLimit, 0, 2), -1, 1),
+      y: clamp(normalizedGaze.y * clamp(gazeLimit, 0, 2), -1, 1),
+    };
+    const leftProjection = projectEyeOnSurface({
+      geometry: definition.left,
+      side: -1,
+      gaze: limitedGaze,
+      rangeX: pointerConfig.rangeX,
+      rangeY: pointerConfig.rangeY,
+      eyeScale,
+      eyeDistance,
+      turn,
+      surface: surfaceConfig,
+    });
+    const rightProjection = projectEyeOnSurface({
+      geometry: definition.right,
+      side: 1,
+      gaze: limitedGaze,
+      rangeX: pointerConfig.rangeX,
+      rangeY: pointerConfig.rangeY,
+      eyeScale,
+      eyeDistance,
+      turn,
+      surface: surfaceConfig,
+    });
+    const leftPath = leftProjection.path;
+    const rightPath = rightProjection.path;
 
     const updateExpression = useCallback(
       (nextExpression: string) => {
@@ -713,6 +755,17 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         data-pointer-range-y={String(pointerConfig.rangeY)}
         data-pointer-tilt={String(pointerConfig.tilt)}
         data-pointer-target={pointerConfig.target}
+        data-surface-enabled={String(surfaceConfig.enabled)}
+        data-surface-perspective={String(surfaceConfig.perspective)}
+        data-surface-edge-compression={String(surfaceConfig.edgeCompression)}
+        data-surface-depth={String(surfaceConfig.depth)}
+        data-surface-body-follow={String(surfaceConfig.bodyFollow)}
+        data-surface-inertia={String(surfaceConfig.inertia)}
+        data-surface-max-turn={String(surfaceConfig.maxTurn)}
+        data-left-eye-compression={String(leftProjection.compression)}
+        data-right-eye-compression={String(rightProjection.compression)}
+        data-left-eye-depth={String(leftProjection.depthScale)}
+        data-right-eye-depth={String(rightProjection.depthScale)}
         data-hovered={String(isHovered)}
         data-eye-motion={String(eyeMotionEnabled)}
         data-eye-animation={activeEyeAnimation ?? "none"}
@@ -722,20 +775,57 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         onContextMenu={handleContextMenu}
         onClick={handleClick}
       >
+        <defs>
+          <clipPath id={surfaceClipId} clipPathUnits="userSpaceOnUse">
+            <motion.path
+              data-part="body-clip"
+              d={bodyPath}
+              animate={{
+                d: bodyPath,
+                rotate: definition.body?.rotate ?? 0,
+                scaleX: (definition.body?.scaleX ?? 1) * (flip ? -1 : 1),
+                scaleY: definition.body?.scaleY ?? 1,
+                y: definition.body?.y ?? 0,
+              }}
+              transition={transition}
+              style={{ transformOrigin: "100px 100px" }}
+            />
+          </clipPath>
+        </defs>
         <motion.g
           data-part="pointer-performance"
           animate={{
             x: shouldReduceMotion
               ? 0
-              : normalizedGaze.x * 2.5 * clamp(gazeLimit, 0, 2),
+              : surfaceConfig.enabled
+                ? limitedGaze.x *
+                  pointerConfig.rangeX *
+                  surfaceConfig.bodyFollow *
+                  0.28
+                : limitedGaze.x * 2.5,
             y: shouldReduceMotion
               ? 0
-              : normalizedGaze.y * 1.75 * clamp(gazeLimit, 0, 2),
-            rotate: shouldReduceMotion
-              ? 0
-              : normalizedGaze.x * pointerConfig.tilt * clamp(gazeLimit, 0, 2),
+              : surfaceConfig.enabled
+                ? limitedGaze.y *
+                  pointerConfig.rangeY *
+                  surfaceConfig.bodyFollow *
+                  0.28
+                : limitedGaze.y * 1.75,
+            rotate: shouldReduceMotion ? 0 : limitedGaze.x * pointerConfig.tilt,
+            scaleX:
+              shouldReduceMotion || !surfaceConfig.enabled
+                ? 1
+                : 1 -
+                  Math.abs(limitedGaze.x) * surfaceConfig.bodyFollow * 0.05 +
+                  Math.abs(limitedGaze.y) * surfaceConfig.bodyFollow * 0.018,
+            scaleY:
+              shouldReduceMotion || !surfaceConfig.enabled
+                ? 1
+                : 1 -
+                  Math.abs(limitedGaze.y) * surfaceConfig.bodyFollow * 0.05 +
+                  Math.abs(limitedGaze.x) * surfaceConfig.bodyFollow * 0.018,
           }}
-          transition={transition}
+          transition={bodyTransition}
           style={{ transformOrigin: "100px 100px" }}
         >
           <motion.g
@@ -758,17 +848,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
             />
             <motion.g
               data-part="eyes"
-              animate={{
-                x:
-                  normalizedGaze.x *
-                  pointerConfig.rangeX *
-                  clamp(gazeLimit, 0, 2),
-                y:
-                  normalizedGaze.y *
-                  pointerConfig.rangeY *
-                  clamp(gazeLimit, 0, 2),
-              }}
-              transition={transition}
+              clipPath={`url(#${surfaceClipId})`}
               style={{ transformOrigin: "100px 96px" }}
             >
               <motion.g
@@ -796,14 +876,20 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                       d={leftPath}
                       fill={eyeColor}
                       animate={{ d: leftPath }}
-                      transition={transition}
+                      transition={eyeTransition}
                     />
                     <motion.path
                       data-part="right-eye"
                       d={rightPath}
                       fill={eyeColor}
                       animate={{ d: rightPath }}
-                      transition={transition}
+                      transition={{
+                        ...eyeTransition,
+                        delay:
+                          shouldReduceMotion || motionPreset === "none"
+                            ? 0
+                            : expressionMotionConfig.stagger / 1000,
+                      }}
                     />
                   </motion.g>
                 </motion.g>

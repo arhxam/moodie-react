@@ -6,6 +6,9 @@ export type ExpressionMotionConfig = {
   duration: number;
   eyes: boolean;
   body: boolean;
+  anticipation: number;
+  overshoot: number;
+  stagger: number;
 };
 
 export const DEFAULT_EXPRESSION_MOTION: ExpressionMotionConfig = {
@@ -14,6 +17,9 @@ export const DEFAULT_EXPRESSION_MOTION: ExpressionMotionConfig = {
   duration: 620,
   eyes: true,
   body: true,
+  anticipation: 0.35,
+  overshoot: 0.25,
+  stagger: 35,
 };
 
 export type ExpressionCue = {
@@ -68,14 +74,38 @@ export function normalizeExpressionMotion(
     ),
     eyes: config.eyes ?? true,
     body: config.body ?? true,
+    anticipation: clamp(
+      config.anticipation,
+      0,
+      1,
+      DEFAULT_EXPRESSION_MOTION.anticipation,
+    ),
+    overshoot: clamp(
+      config.overshoot,
+      0,
+      1,
+      DEFAULT_EXPRESSION_MOTION.overshoot,
+    ),
+    stagger: clamp(config.stagger, 0, 120, DEFAULT_EXPRESSION_MOTION.stagger),
   };
 }
 
-const overshoot = (target: number, rest: number, intensity: number) =>
-  rest - (target - rest) * intensity * 0.18;
-
 const scaleValues = (values: number[], rest: number, intensity: number) =>
   values.map((value) => rest + (value - rest) * intensity);
+
+const anticipate = (
+  target: number,
+  rest: number,
+  amount: number,
+  factor = 0.22,
+) => rest - (target - rest) * amount * factor;
+
+const overshoot = (
+  target: number,
+  rest: number,
+  amount: number,
+  factor = 0.18,
+) => rest - (target - rest) * amount * factor;
 
 /** Build a deterministic glance-and-settle performance for an expression. */
 export function createExpressionCue(
@@ -90,14 +120,44 @@ export function createExpressionCue(
   const scaleY = 1 + ((performance?.scaleY ?? 0.94) - 1) * intensity;
 
   return {
-    x: [0, x, overshoot(x, 0, 1), 0],
-    y: [0, y, overshoot(y, 0, 1), 0],
-    rotate: [0, rotate, overshoot(rotate, 0, 1), 0],
-    scaleX: [1, scaleX, overshoot(scaleX, 1, 1), 1],
-    scaleY: [1, scaleY, overshoot(scaleY, 1, 1), 1],
+    x: [
+      0,
+      anticipate(x, 0, config.anticipation),
+      x,
+      overshoot(x, 0, config.overshoot),
+      0,
+    ],
+    y: [
+      0,
+      anticipate(y, 0, config.anticipation),
+      y,
+      overshoot(y, 0, config.overshoot),
+      0,
+    ],
+    rotate: [
+      0,
+      anticipate(rotate, 0, config.anticipation),
+      rotate,
+      overshoot(rotate, 0, config.overshoot),
+      0,
+    ],
+    scaleX: [
+      1,
+      anticipate(scaleX, 1, config.anticipation),
+      scaleX,
+      overshoot(scaleX, 1, config.overshoot),
+      1,
+    ],
+    scaleY: [
+      1,
+      anticipate(scaleY, 1, config.anticipation),
+      scaleY,
+      overshoot(scaleY, 1, config.overshoot),
+      1,
+    ],
     transition: {
       duration: config.duration / 1000,
-      times: [0, 0.24, 0.68, 1],
+      times: [0, 0.12, 0.42, 0.72, 1],
       ease: [0.22, 1, 0.36, 1],
     },
   };

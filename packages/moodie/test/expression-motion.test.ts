@@ -22,13 +22,21 @@ describe("expression motion", () => {
       duration: 180,
       eyes: false,
       body: true,
+      anticipation: 0.35,
+      overshoot: 0.25,
+      stagger: 35,
     });
   });
 
-  it("creates expressive four-stage eye cues from preset semantics", () => {
+  it("creates expressive five-stage eye cues with anticipation and overshoot", () => {
     const worried = createExpressionCue(
       expressionPresets.worried.performance,
-      normalizeExpressionMotion({ intensity: 1.5, duration: 640 }),
+      normalizeExpressionMotion({
+        intensity: 1.5,
+        duration: 640,
+        anticipation: 0.5,
+        overshoot: 0.4,
+      }),
     );
     const happy = createExpressionCue(
       expressionPresets.happy.performance,
@@ -36,13 +44,24 @@ describe("expression motion", () => {
     );
 
     expect(worried.transition.duration).toBe(0.64);
-    expect(worried.x).toHaveLength(4);
-    expect(worried.y).toHaveLength(4);
-    expect(worried.x[1]).not.toBe(0);
-    expect(worried.rotate[1]).not.toBe(0);
+    expect(worried.x).toHaveLength(5);
+    expect(worried.y).toHaveLength(5);
+    expect(Math.sign(worried.x[1])).toBe(-Math.sign(worried.x[2]));
+    expect(Math.abs(worried.x[3])).toBeLessThan(Math.abs(worried.x[2]));
+    expect(worried.rotate[2]).not.toBe(0);
     expect(worried.x.at(-1)).toBe(0);
-    expect(happy.scaleY[1]).toBeGreaterThan(1);
+    expect(happy.scaleY[2]).toBeGreaterThan(1);
     expect(happy).not.toEqual(worried);
+  });
+
+  it("clamps choreography controls to deformation-safe ranges", () => {
+    expect(
+      normalizeExpressionMotion({
+        anticipation: 9,
+        overshoot: -4,
+        stagger: 900,
+      }),
+    ).toMatchObject({ anticipation: 1, overshoot: 0, stagger: 120 });
   });
 
   it("keeps energetic body reactions volume-safe", () => {

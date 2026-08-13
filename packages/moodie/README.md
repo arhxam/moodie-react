@@ -54,6 +54,15 @@ Or uncontrolled mode:
     rangeY: 12,
     tilt: 3,
   }}
+  surface={{
+    enabled: true,
+    perspective: 1,
+    edgeCompression: 0.82,
+    depth: 0.65,
+    bodyFollow: 0.28,
+    inertia: 0.4,
+    maxTurn: 42,
+  }}
   eyeMotion={{
     enabled: true,
     idle: true,
@@ -74,11 +83,17 @@ Or uncontrolled mode:
 />
 ```
 
-Boolean shorthands work for `pointer`, `eyeMotion`, `blink`, and `auto`.
+Boolean shorthands work for `pointer`, `surface`, `eyeMotion`, `blink`, and `auto`.
 
 `strength` controls how quickly gaze reaches its limit. `rangeX` and `rangeY` control eye travel in view-box units, while `tilt` adds a small directional lean to the face. Multiply the entire range with `gazeLimit` when one high-level control is preferable. `target: "parent"` makes the SVG's immediate parent the tracking surface, which is useful for cards and full preview canvases; `"self"` is the backward-compatible default.
 
 Eye motion is layered independently from gaze, expression morphs, and blinking. Built-in cues are `notice`, `glance`, `squint`, `wide`, and `flutter`. Canvas entry starts tracking immediately, while hovering the face can play both an eye cue and a body reaction without changing the selected expression. With `contextMenuBlink`, right-clicking the configured tracking surface blinks and suppresses the browser menu. Explicit right-click and imperative blinks work even when automatic blink cadence is disabled.
+
+### Surface realism
+
+Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, each eye compresses along the direction of travel; horizontal gaze narrows width, vertical gaze shortens height, and diagonal gaze blends both axes. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion.
+
+`perspective`, `edgeCompression`, `depth`, `bodyFollow`, and `inertia` use a normalized range of `0` to `1` in typical use. `perspective` accepts up to `2` for a deliberately exaggerated demo, and `maxTurn` accepts `0` to `70` degrees. Pass `surface={false}` for the original flat translation behavior while retaining gaze tracking.
 
 ## Motion
 
@@ -86,11 +101,17 @@ Eye motion is layered independently from gaze, expression morphs, and blinking. 
 <Moodie
   motion="bouncy"
   spring={{ stiffness: 260, damping: 14, mass: 0.75 }}
-  expressionMotion={{ intensity: 1.35, duration: 620 }}
+  expressionMotion={{
+    intensity: 1.35,
+    duration: 620,
+    anticipation: 0.35,
+    overshoot: 0.25,
+    stagger: 35,
+  }}
 />
 ```
 
-Every expression change performs a short body reaction and an expression-specific eye movement before settling. Tune it with `expressionMotion`, or pass `false` to disable the performance while keeping path morphing. `eyes` and `body` can also be toggled independently.
+Every expression change performs anticipation, a decisive arrival, a small counter-overshoot, and a settle. Tune its energy with `intensity`, `anticipation`, and `overshoot`; tune timing with `duration` and the between-eye `stagger`. Pass `false` to disable the performance while keeping path morphing. `eyes` and `body` can also be toggled independently.
 
 Use `motion="none"` for no transitions. The default `reducedMotion="system"` follows the user's OS setting. `"always"` and `"never"` are available when a host application needs an explicit policy; reduced motion suppresses expression performances.
 
@@ -152,6 +173,7 @@ ref.current?.setExpression("alert");
 | `motion`            | `spring \| gentle \| snappy \| bouncy \| tween \| none` | `spring`   |
 | `expressionMotion`  | `boolean \| Partial<ExpressionMotionConfig>`            | `true`     |
 | `pointer`           | `boolean \| PointerConfig`                              | `true`     |
+| `surface`           | `boolean \| Partial<SurfaceConfig>`                     | `true`     |
 | `eyeMotion`         | `boolean \| Partial<EyeMotionConfig>`                   | `true`     |
 | `blink`             | `boolean \| BlinkConfig`                                | `true`     |
 | `auto`              | `boolean \| AutoConfig`                                 | `false`    |
@@ -160,4 +182,4 @@ ref.current?.setExpression("alert");
 
 All standard SVG props except the conflicting native `color` definition are forwarded.
 
-Useful runtime attributes include `data-pointer-target`, `data-hovered`, `data-eye-motion`, and `data-eye-animation`. Reduced motion suppresses automatic idle and hover performances while preserving stable geometry and explicit application state.
+Useful runtime attributes include `data-pointer-target`, `data-surface-enabled`, `data-left-eye-compression`, `data-right-eye-compression`, `data-hovered`, `data-eye-motion`, and `data-eye-animation`. Reduced motion suppresses automatic idle and hover performances while preserving stable geometry and explicit application state.

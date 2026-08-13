@@ -35,7 +35,8 @@ describe("Moodie", () => {
     const face = screen.getByRole("img", { name: "Friendly status" });
     expect(face).toHaveAttribute("data-expression", "happy");
     expect(face).toHaveAttribute("data-shape", "circle");
-    expect(face.querySelectorAll("path")).toHaveLength(3);
+    expect(face.querySelectorAll("path")).toHaveLength(4);
+    expect(face.querySelector("[data-part='body-clip']")).not.toBeNull();
     expect(face.querySelector("[data-part='body']")).toHaveAttribute(
       "fill",
       "#ff3366",
@@ -287,6 +288,65 @@ describe("Moodie", () => {
     expect(
       face.querySelector("[data-part='pointer-performance']"),
     ).not.toBeNull();
+  });
+
+  it("projects each eye independently across the curved face surface", () => {
+    render(
+      <div data-testid="stage">
+        <Moodie
+          pointer={{ target: "parent", strength: 1, rangeX: 30, rangeY: 24 }}
+          surface={{
+            perspective: 1.2,
+            edgeCompression: 0.9,
+            depth: 0.8,
+            inertia: 0.55,
+          }}
+          eyeMotion={false}
+          blink={false}
+        />
+      </div>,
+    );
+    const stage = screen.getByTestId("stage");
+    const face = screen.getByRole("img");
+    const leftEye = face.querySelector("[data-part='left-eye']");
+    const rightEye = face.querySelector("[data-part='right-eye']");
+    const centerLeft = leftEye?.getAttribute("d");
+    const centerRight = rightEye?.getAttribute("d");
+    vi.spyOn(stage, "getBoundingClientRect").mockReturnValue(rect(400, 200));
+
+    fireEvent.pointerMove(stage, { clientX: 400, clientY: 100 });
+
+    expect(face).toHaveAttribute("data-surface-enabled", "true");
+    expect(face).toHaveAttribute("data-surface-edge-compression", "0.9");
+    expect(face).toHaveAttribute("data-surface-inertia", "0.55");
+    expect(
+      Number(face.getAttribute("data-left-eye-compression")),
+    ).toBeGreaterThan(Number(face.getAttribute("data-right-eye-compression")));
+    expect(leftEye?.getAttribute("d")).not.toBe(centerLeft);
+    expect(rightEye?.getAttribute("d")).not.toBe(centerRight);
+    expect(face.querySelector("[data-part='eyes']")).toHaveAttribute(
+      "clip-path",
+      expect.stringContaining("moodie-surface"),
+    );
+    expect(face.querySelector("[data-part='body-clip']")).not.toBeNull();
+  });
+
+  it("keeps final surface geometry while suppressing reduced-motion choreography", () => {
+    render(
+      <Moodie
+        gaze={{ x: 1, y: -1 }}
+        reducedMotion="always"
+        surface
+        blink={false}
+      />,
+    );
+    const face = screen.getByRole("img");
+
+    expect(face).toHaveAttribute("data-reduced-motion", "true");
+    expect(face).toHaveAttribute("data-surface-enabled", "true");
+    expect(Number(face.getAttribute("data-left-eye-compression"))).toBeLessThan(
+      1,
+    );
   });
 
   it("exposes its reduced-motion decision", () => {

@@ -18,16 +18,17 @@ import { Moodie } from "@moodie/react";
 
 - 16 expressions: neutral, happy, excited, sleepy, sad, worried, thinking, love, curious, surprised, focused, cheeky, dizzy, calm, wink, alert.
 - 5 shapes: circle, squircle, blob, pebble, diamond.
-- Spring/tween/path morph animation, expression-specific performances, parent-canvas gaze, hover recognition, idle eye choreography, and right-click blink.
+- Curved-surface eye projection with radial edge compression, near/far depth, body follow, and configurable inertia.
+- Spring/tween/path morph animation, anticipation/overshoot expression performances, parent-canvas gaze, hover recognition, idle eye choreography, and right-click blink.
 - Controlled/uncontrolled state and imperative ref methods.
 - Custom normalized eye geometry.
 - SSR-safe and reduced-motion aware.
 
 ## Main API
 
-`MoodieProps`: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, eyeMotion, blink, pointer, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
+`MoodieProps`: expression, defaultExpression, expressions, expressionOrder, onExpressionChange, shape, color, eyeColor, size, eyeScale, eyeDistance, turn, flip, motion, spring, expressionMotion, eyeMotion, blink, pointer, surface, auto, gaze, gazeLimit, clickAction, reaction, reducedMotion, ariaLabel.
 
-Use `pointer={{ target: "parent" }}` to track across the immediate parent canvas. Configure `eyeMotion` with idle animations, hover eye/body cues, intensity, cadence, and `contextMenuBlink`. Imperative refs expose `animateEyes("wide")`.
+Use `pointer={{ target: "parent" }}` to track across the immediate parent canvas. Configure `surface` with perspective, edge compression, depth, body follow, inertia, and maximum turn. Configure `eyeMotion` with idle animations, hover eye/body cues, intensity, cadence, and `contextMenuBlink`. Imperative refs expose `animateEyes("wide")`.
 
 Controlled interactive example:
 

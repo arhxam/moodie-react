@@ -7,6 +7,7 @@ import {
   normalizeEyeMotion,
   normalizePointer,
   normalizeSpring,
+  normalizeSurface,
 } from "../src/config";
 import {
   EXPRESSION_NAMES,
@@ -149,6 +150,15 @@ describe("configuration normalization", () => {
         rangeY: 12,
         tilt: 3,
       },
+      surface: {
+        enabled: true,
+        perspective: 1,
+        edgeCompression: 0.82,
+        depth: 0.65,
+        bodyFollow: 0.28,
+        inertia: 0.4,
+        maxTurn: 42,
+      },
       eyeMotion: {
         enabled: true,
         idle: true,
@@ -160,5 +170,9 @@ describe("configuration normalization", () => {
         contextMenuBlink: true,
       },
     });
+  });
+
+  it("normalizes the dimensional surface shorthand through core config", () => {
+    expect(normalizeSurface(true)).toEqual(DEFAULT_CONFIG.surface);
   });
 });

@@ -85,6 +85,15 @@ export function Playground() {
                 rangeY: config.pointerRangeY,
                 tilt: config.pointerTilt,
               }}
+              surface={{
+                enabled: config.surface,
+                perspective: config.surfacePerspective,
+                edgeCompression: config.edgeCompression,
+                depth: config.surfaceDepth,
+                bodyFollow: config.bodyFollow,
+                inertia: config.surfaceInertia,
+                maxTurn: config.maxTurn,
+              }}
               eyeMotion={{
                 enabled: config.eyeMotion,
                 idle: config.idleEyeMotion,
@@ -111,6 +120,9 @@ export function Playground() {
                 duration: config.expressionDuration,
                 eyes: config.eyePerformance,
                 body: config.bodyPerformance,
+                anticipation: config.expressionAnticipation,
+                overshoot: config.expressionOvershoot,
+                stagger: config.eyeStagger,
               }}
               clickAction="random"
               ariaLabel={`Animated ${config.expression} face. Enter the canvas to track, click to randomize, or right-click to blink.`}
