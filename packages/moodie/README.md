@@ -92,7 +92,7 @@ Eye motion is layered independently from gaze, expression morphs, and blinking. 
 
 ### Surface realism
 
-Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, each eye compresses along the direction of travel; horizontal gaze narrows width, vertical gaze shortens height, and diagonal gaze blends both axes. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion. `volumePreservation` adds a subtle bounded expansion across the tangent axis so strong gaze retains appealing visual weight.
+Surface projection makes the eye geometry behave as if it is attached to a rounded face instead of sliding like a flat sticker. At the edge, only the outward-facing contour shoulder foreshortens; the inward half remains stable instead of shrinking the whole eye. Horizontal, vertical, and diagonal gaze rotate that localized effect continuously. `depth` makes the near and far eye react differently, `maxTurn` adds directional yaw, and `bodyFollow` lets the face trail the faster eye motion. `volumePreservation` adds a subtle bounded expansion on the same outward contour so strong gaze retains appealing visual weight.
 
 `perspective`, `edgeCompression`, `depth`, `bodyFollow`, `inertia`, and `volumePreservation` use a normalized range of `0` to `1` in typical use. `perspective` accepts up to `2` for a deliberately exaggerated demo, and `maxTurn` accepts `0` to `70` degrees. Pass `surface={false}` for the original flat translation behavior while retaining gaze tracking.
 
@@ -112,7 +112,7 @@ Surface projection makes the eye geometry behave as if it is attached to a round
 />
 ```
 
-Every expression change performs anticipation, a decisive arrival, a small counter-overshoot, and a settle. Tune its energy with `intensity`, `anticipation`, and `overshoot`; tune timing with `duration` and the between-eye `stagger`. Pass `false` to disable the performance while keeping path morphing. `eyes` and `body` can also be toggled independently.
+Every expression change performs anticipation, a decisive arrival, a small counter-overshoot, and a settle. Tune its energy with `intensity`, `anticipation`, and `overshoot`; tune timing with `duration` and the between-eye `stagger`. Stagger applies only to that expression cue, so pointer tracking always starts both eyes on the same frame. Pass `false` to disable the performance while keeping path morphing. `eyes` and `body` can also be toggled independently.
 
 Use `motion="none"` for no transitions. The default `reducedMotion="system"` follows the user's OS setting. `"always"` and `"never"` are available when a host application needs an explicit policy; reduced motion suppresses expression performances.
 
