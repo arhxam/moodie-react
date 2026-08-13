@@ -132,10 +132,17 @@ const transformPoint = (
   const radialY = radial * radialAxis[1];
   const tangentX = localX - radialX;
   const tangentY = localY - radialY;
+  // Perspective foreshortening belongs on the contour that is turning away
+  // from the viewer. Preserve the inward half instead of scaling the full eye.
+  const projectedRadial =
+    radial < 0 ? radial : radial * clamp(compression, 0, 1, 1);
+  const projectedRadialX = projectedRadial * radialAxis[0];
+  const projectedRadialY = projectedRadial * radialAxis[1];
+  const localTangentScale = radial < 0 ? 1 : tangentScale;
   return [
     round(
       clamp(
-        targetCenter[0] + tangentX * tangentScale + radialX * compression,
+        targetCenter[0] + tangentX * localTangentScale + projectedRadialX,
         0,
         200,
         100,
@@ -143,7 +150,7 @@ const transformPoint = (
     ),
     round(
       clamp(
-        targetCenter[1] + tangentY * tangentScale + radialY * compression,
+        targetCenter[1] + tangentY * localTangentScale + projectedRadialY,
         0,
         200,
         100,

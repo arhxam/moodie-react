@@ -182,7 +182,8 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
     const lastIdleEyeAnimation = useRef<EyeAnimationName | null>(null);
     const systemReducedMotion = useReducedMotion();
     const reactionControls = useAnimationControls();
-    const expressionControls = useAnimationControls();
+    const leftExpressionControls = useAnimationControls();
+    const rightExpressionControls = useAnimationControls();
     const eyeControls = useAnimationControls();
     const previousExpression = useRef(currentExpression);
 
@@ -541,17 +542,27 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
       if (previous === currentExpression || !expressionMotionEnabled) return;
 
       if (expressionMotionConfig.eyes) {
-        expressionControls.stop();
-        expressionControls.set(neutralTransform);
-        void expressionControls.start(
+        leftExpressionControls.stop();
+        rightExpressionControls.stop();
+        leftExpressionControls.set(neutralTransform);
+        rightExpressionControls.set(neutralTransform);
+        void leftExpressionControls.start(
           createExpressionCue(definition.performance, expressionMotionConfig),
+        );
+        void rightExpressionControls.start(
+          createExpressionCue(
+            definition.performance,
+            expressionMotionConfig,
+            expressionMotionConfig.stagger,
+          ),
         );
       }
       if (expressionMotionConfig.body) playReaction();
     }, [
       currentExpression,
       definition.performance,
-      expressionControls,
+      leftExpressionControls,
+      rightExpressionControls,
       expressionMotionConfig,
       expressionMotionEnabled,
       playReaction,
@@ -784,6 +795,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
             <motion.path
               data-part="body-clip"
               d={bodyPath}
+              initial={false}
               animate={{
                 d: bodyPath,
                 rotate: definition.body?.rotate ?? 0,
@@ -840,6 +852,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
               data-part="body"
               d={bodyPath}
               fill={color}
+              initial={false}
               animate={{
                 d: bodyPath,
                 rotate: definition.body?.rotate ?? 0,
@@ -861,39 +874,41 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                 style={{ transformOrigin: "100px 96px" }}
               >
                 <motion.g
-                  data-part="expression-cue"
-                  animate={expressionControls}
+                  data-part="blink"
+                  animate={{ scaleY: isBlinking ? 0.06 : 1 }}
+                  transition={
+                    isBlinking
+                      ? { duration: blinkConfig.duration / 2000 }
+                      : transition
+                  }
                   style={{ transformOrigin: "100px 96px" }}
                 >
                   <motion.g
-                    data-part="blink"
-                    animate={{ scaleY: isBlinking ? 0.06 : 1 }}
-                    transition={
-                      isBlinking
-                        ? { duration: blinkConfig.duration / 2000 }
-                        : transition
-                    }
+                    data-part="left-expression-cue"
+                    animate={leftExpressionControls}
                     style={{ transformOrigin: "100px 96px" }}
                   >
                     <motion.path
                       data-part="left-eye"
                       d={leftPath}
                       fill={eyeColor}
+                      initial={false}
                       animate={{ d: leftPath }}
                       transition={eyeTransition}
                     />
+                  </motion.g>
+                  <motion.g
+                    data-part="right-expression-cue"
+                    animate={rightExpressionControls}
+                    style={{ transformOrigin: "100px 96px" }}
+                  >
                     <motion.path
                       data-part="right-eye"
                       d={rightPath}
                       fill={eyeColor}
+                      initial={false}
                       animate={{ d: rightPath }}
-                      transition={{
-                        ...eyeTransition,
-                        delay:
-                          shouldReduceMotion || motionPreset === "none"
-                            ? 0
-                            : expressionMotionConfig.stagger / 1000,
-                      }}
+                      transition={eyeTransition}
                     />
                   </motion.g>
                 </motion.g>
