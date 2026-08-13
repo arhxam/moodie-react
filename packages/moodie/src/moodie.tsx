@@ -344,6 +344,14 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                 springConfig.damping * (1.12 + surfaceConfig.inertia * 0.18),
               mass: springConfig.mass * (1.08 + surfaceConfig.inertia * 0.72),
             };
+    const bodyFillTransition =
+      shouldReduceMotion || motionPreset === "none"
+        ? "none"
+        : "fill 480ms cubic-bezier(0.22, 1, 0.36, 1)";
+    const eyeFillTransition =
+      shouldReduceMotion || motionPreset === "none"
+        ? "none"
+        : "fill 360ms cubic-bezier(0.22, 1, 0.36, 1)";
 
     const definition = resolveExpression(currentExpression, expressions);
     const expressionMotionEnabled =
@@ -867,6 +875,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
               initial={false}
               animate={{
                 d: bodyPath,
+                fill: color,
                 rotate: definition.body?.rotate ?? 0,
                 scaleX: (definition.body?.scaleX ?? 1) * (flip ? -1 : 1),
                 scaleY: definition.body?.scaleY ?? 1,
@@ -930,7 +939,10 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                 y: definition.body?.y ?? 0,
               }}
               transition={transition}
-              style={{ transformOrigin: "100px 100px" }}
+              style={{
+                transformOrigin: "100px 100px",
+                transition: bodyFillTransition,
+              }}
             />
             <motion.g
               data-part="eyes"
@@ -964,6 +976,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                       initial={false}
                       animate={{ d: leftPath }}
                       transition={eyeTransition}
+                      style={{ transition: eyeFillTransition }}
                     />
                   </motion.g>
                   <motion.g
@@ -978,6 +991,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
                       initial={false}
                       animate={{ d: rightPath }}
                       transition={eyeTransition}
+                      style={{ transition: eyeFillTransition }}
                     />
                   </motion.g>
                 </motion.g>
