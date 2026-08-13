@@ -21,11 +21,7 @@ Add these exported types:
 export type PointerTrackingTarget = "self" | "parent";
 
 export type EyeAnimationName =
-  | "notice"
-  | "glance"
-  | "squint"
-  | "wide"
-  | "flutter";
+  "notice" | "glance" | "squint" | "wide" | "flutter";
 
 export type EyeMotionConfig = {
   enabled: boolean;
@@ -99,4 +95,3 @@ README, package documentation, LLM guide, changelog, and `llms.txt` describe the
 - Demo exporter tests prove generated code and JSON stay synchronized.
 - Browser QA proves canvas-edge tracking, hover recognition, right-click blink, idle animation, expression composition, mobile geometry, and console health.
 - Full formatting, typecheck, unit test, package build, demo build, GitHub CI, public release installation, and production HTTP checks must pass before completion.
-
