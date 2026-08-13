@@ -154,7 +154,14 @@ const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
 const scaleDelta = (values: number[], intensity: number) =>
-  values.map((value) => Number((1 + (value - 1) * intensity).toFixed(4)));
+  values.map((value) =>
+    Number(clamp(1 + (value - 1) * intensity, 0, 2).toFixed(4)),
+  );
+
+const scaleOpacity = (values: number[], intensity: number) =>
+  values.map((value) =>
+    Number(clamp(1 + (value - 1) * intensity, 0, 1).toFixed(4)),
+  );
 
 const scaleMovement = (values: number[], intensity: number) =>
   values.map((value) => Number((value * intensity).toFixed(4)));
@@ -174,7 +181,7 @@ export const createEyeAnimationCue = (
     scaleX: inheritCurrent(scaleDelta(cue.scaleX, amount)),
     scaleY: inheritCurrent(scaleDelta(cue.scaleY, amount)),
     rotate: inheritCurrent(scaleMovement(cue.rotate, amount)),
-    opacity: inheritCurrent(scaleDelta(cue.opacity, amount)),
+    opacity: inheritCurrent(scaleOpacity(cue.opacity, amount)),
     transition: {
       duration: cue.duration,
       times: [...cue.times],

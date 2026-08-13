@@ -92,6 +92,22 @@ describe("eye animation cues", () => {
     expect(createEyeAnimationCue("squint", 0).scaleY).toEqual([null, 1, 1, 1]);
   });
 
+  it("keeps maximum-intensity deformation inside physical ranges", () => {
+    for (const name of EYE_ANIMATION_NAMES) {
+      const cue = createEyeAnimationCue(name, 2);
+      expect(
+        ([...cue.scaleX.slice(1), ...cue.scaleY.slice(1)] as number[]).every(
+          (value) => value >= 0 && value <= 2,
+        ),
+      ).toBe(true);
+      expect(
+        (cue.opacity.slice(1) as number[]).every(
+          (value) => value >= 0 && value <= 1,
+        ),
+      ).toBe(true);
+    }
+  });
+
   it("supports full disappearance and dimensional travel", () => {
     const vanish = createEyeAnimationCue("vanish", 1);
     const orbit = createEyeAnimationCue("orbit", 1);
