@@ -40,7 +40,8 @@ export function LoadingState() {
 - Pointer-following gaze, automatic blinking, and expression cycling
 - Face-only or parent-canvas gaze with configurable sensitivity, travel, and tilt
 - Curved-surface projection with edge compression, depth, body follow, and inertia
-- Natural notice, glance, squint, widen, and flutter eye performances
+- Twelve interruptible eye performances, including roll, vanish, orbit, double-take, recoil, droop, and shake
+- Configurable expression-to-performance triggers plus an imperative cue API
 - Configurable hover recognition, idle micro-motion, right-click blinking, and double-right-click body cycling
 - Spring, gentle, snappy, bouncy, tween, and no-motion modes
 - Controlled or uncontrolled React state
@@ -111,6 +112,11 @@ The demo opens at `http://localhost:5173` by default.
     hover: "notice",
     hoverReaction: "tilt",
     contextMenuBlink: true,
+    expressionTriggers: {
+      cheeky: "roll",
+      surprised: "recoil",
+      sleepy: "droop",
+    },
   }}
   blink={{ enabled: true, interval: [2600, 6200], duration: 150 }}
   auto={{ enabled: false, expressions: ["neutral", "thinking"] }}
@@ -125,7 +131,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.3.1`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.4.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 

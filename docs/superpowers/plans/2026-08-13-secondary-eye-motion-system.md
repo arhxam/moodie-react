@@ -13,6 +13,7 @@
 ## Task 1: Reconcile the shared branch with the public release
 
 **Files:**
+
 - Merge target: `origin/master`
 - Preserve: `packages/moodie/src/geometry.ts`, shape tests, shape docs, and demo shape controls from commit `5a1d3f2`
 - Align: `packages/moodie/package.json`, `apps/demo/package.json`, `package-lock.json`
@@ -26,6 +27,7 @@
 ## Task 2: Define the expanded cue and trigger contract with failing tests
 
 **Files:**
+
 - Modify: `packages/moodie/test/eye-motion.test.ts`
 - Modify: `packages/moodie/test/config.test.ts`
 - Modify: `packages/moodie/src/config.ts`
@@ -44,6 +46,7 @@
 ## Task 3: Make playback interruption-safe and expression-aware
 
 **Files:**
+
 - Modify: `packages/moodie/test/moodie.test.tsx`
 - Modify: `packages/moodie/src/moodie.tsx`
 
@@ -60,6 +63,7 @@
 ## Task 4: Add the compact playground launcher and generated configuration
 
 **Files:**
+
 - Modify: `apps/demo/src/lib/playground.ts`
 - Modify: `apps/demo/src/lib/playground.test.ts`
 - Modify: `apps/demo/src/components/playground/playground.tsx`
@@ -77,6 +81,7 @@
 ## Task 5: Document the public API and release it as a minor version
 
 **Files:**
+
 - Modify: `README.md`
 - Modify: `packages/moodie/README.md`
 - Modify: `docs/llm-guide.md`
@@ -96,6 +101,7 @@
 ## Task 6: Browser-QA motion, accessibility, and layout
 
 **Files:**
+
 - Test only; fix the smallest relevant source file if an issue is found.
 
 - [ ] Start the production-like preview and open the site in the browser agent.
@@ -110,6 +116,7 @@
 ## Task 7: Publish GitHub release and production deployment
 
 **Files:**
+
 - GitHub release artifact generated from `packages/moodie`
 - Vercel production project `moodie-react`
 

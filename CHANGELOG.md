@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-08-13
+
+- Added seven secondary eye performances: roll, vanish, orbit, double-take, recoil, droop, and shake.
+- Made every eye cue interruptible from the currently rendered pose with stale-completion protection and guaranteed neutral/full-opacity settling.
+- Added configurable expression-to-cue triggers with expressive defaults and per-expression `none` suppression.
+- Added a compact live performance launcher plus synchronized React and JSON output to the playground.
+- Expanded the body catalog to eleven shapes and added opt-in double-right-click shape cycling.
+- Documented the complete motion catalog, typed constants, imperative triggers, idle-safety guidance, and LLM integration contract.
+
 ## 0.3.2 — 2026-08-13
 
 - Synchronized left/right cursor tracking by restricting `expressionMotion.stagger` to expression-change choreography.
