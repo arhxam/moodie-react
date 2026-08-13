@@ -21,10 +21,10 @@ describe("playground exporters", () => {
       'eyeMotion={{ enabled: true, idle: true, hover: "notice", hoverReaction: "tilt", contextMenuBlink: true, intensity: 1, interval: [2400, 5200] }}',
     );
     expect(code).toContain(
-      "surface={{ enabled: true, perspective: 1, edgeCompression: 0.82, depth: 0.65, bodyFollow: 0.28, inertia: 0.4, maxTurn: 42 }}",
+      "surface={{ enabled: true, perspective: 1, edgeCompression: 0.82, depth: 0.65, bodyFollow: 0.28, inertia: 0.4, maxTurn: 42, volumePreservation: 0.45 }}",
     );
     expect(code).toContain(
-      "expressionMotion={{ intensity: 1.35, duration: 620, eyes: true, body: true, anticipation: 0.35, overshoot: 0.25, stagger: 35 }}",
+      "expressionMotion={{ intensity: 1.35, duration: 620, eyes: true, body: true, anticipation: 0.35, overshoot: 0.25, stagger: 22 }}",
     );
   });
 
@@ -59,6 +59,7 @@ describe("playground exporters", () => {
       bodyFollow: 0.28,
       inertia: 0.4,
       maxTurn: 42,
+      volumePreservation: 0.45,
     });
     expect(parsed.expressionMotion).toEqual({
       intensity: 1.35,
@@ -67,7 +68,7 @@ describe("playground exporters", () => {
       body: true,
       anticipation: 0.35,
       overshoot: 0.25,
-      stagger: 35,
+      stagger: 22,
     });
   });
 });

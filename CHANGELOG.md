@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.3.1 — 2026-08-13
+
+- Softened compounded edge deformation so eyes retain an attractive capsule shape at strong horizontal, vertical, and diagonal gaze.
+- Added bounded tangential volume preservation with a configurable `surface.volumePreservation` control.
+- Replaced dominant-axis edge detection with a continuous directional envelope for smoother diagonal travel.
+- Increased eye/body damping and shortened the default eye stagger for cleaner rapid reversals and more natural settling.
+- Added the volume control to the playground, generated React/JSON, runtime diagnostics, package documentation, and LLM guide.
+
 ## 0.3.0 — 2026-08-13
 
 - Added curved-surface eye projection with radial edge compression, near/far depth scaling, directional turn, and silhouette clipping.

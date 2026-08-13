@@ -24,7 +24,7 @@ describe("expression motion", () => {
       body: true,
       anticipation: 0.35,
       overshoot: 0.25,
-      stagger: 35,
+      stagger: 22,
     });
   });
 

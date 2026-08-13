@@ -13,6 +13,7 @@ export type SurfaceConfig = {
   bodyFollow: number;
   inertia: number;
   maxTurn: number;
+  volumePreservation: number;
 };
 
 export const DEFAULT_SURFACE_CONFIG: SurfaceConfig = {
@@ -23,6 +24,7 @@ export const DEFAULT_SURFACE_CONFIG: SurfaceConfig = {
   bodyFollow: 0.28,
   inertia: 0.4,
   maxTurn: 42,
+  volumePreservation: 0.45,
 };
 
 export type SurfaceGaze = { x: number; y: number };
@@ -44,6 +46,7 @@ export type ProjectedEye = {
   center: Point;
   compression: number;
   depthScale: number;
+  tangentScale: number;
   radialAxis: Point;
   turn: number;
 };
@@ -60,9 +63,9 @@ const clamp = (
 
 const round = (value: number) => Number(value.toFixed(3));
 
-const smoothstep = (edge0: number, edge1: number, value: number) => {
+const smootherstep = (edge0: number, edge1: number, value: number) => {
   const amount = clamp((value - edge0) / (edge1 - edge0), 0, 1, 0);
-  return amount * amount * (3 - 2 * amount);
+  return amount * amount * amount * (amount * (amount * 6 - 15) + 10);
 };
 
 export function normalizeSurface(
@@ -94,6 +97,12 @@ export function normalizeSurface(
     ),
     inertia: clamp(config.inertia, 0, 1, DEFAULT_SURFACE_CONFIG.inertia),
     maxTurn: clamp(config.maxTurn, 0, 70, DEFAULT_SURFACE_CONFIG.maxTurn),
+    volumePreservation: clamp(
+      config.volumePreservation,
+      0,
+      1,
+      DEFAULT_SURFACE_CONFIG.volumePreservation,
+    ),
   };
 }
 
@@ -114,6 +123,7 @@ const transformPoint = (
   radialAxis: Point,
   compression: number,
   depthScale: number,
+  tangentScale: number,
 ): Point => {
   const localX = (point[0] - sourceCenter[0]) * depthScale;
   const localY = (point[1] - sourceCenter[1]) * depthScale;
@@ -124,10 +134,20 @@ const transformPoint = (
   const tangentY = localY - radialY;
   return [
     round(
-      clamp(targetCenter[0] + tangentX + radialX * compression, 0, 200, 100),
+      clamp(
+        targetCenter[0] + tangentX * tangentScale + radialX * compression,
+        0,
+        200,
+        100,
+      ),
     ),
     round(
-      clamp(targetCenter[1] + tangentY + radialY * compression, 0, 200, 100),
+      clamp(
+        targetCenter[1] + tangentY * tangentScale + radialY * compression,
+        0,
+        200,
+        100,
+      ),
     ),
   ];
 };
@@ -177,21 +197,27 @@ export function projectEyeOnSurface(input: ProjectEyeInput): ProjectedEye {
     magnitude > 0.0001
       ? [round(gazeX / magnitude), round(gazeY / magnitude)]
       : [1, 0];
-  const edgeAmount = smoothstep(
-    0.18,
+  const directionalMagnitude = Math.min(
     1,
-    Math.max(Math.abs(gazeX), Math.abs(gazeY)),
+    (Math.abs(gazeX) ** 4 + Math.abs(gazeY) ** 4) ** 0.25,
   );
+  const edgeAmount = smootherstep(0.14, 1, directionalMagnitude);
   const sideDepth = input.side * gazeX * depth;
   const compression = clamp(
-    1 - edgeCompression * edgeAmount * 0.55 * (1 + sideDepth * 0.16),
-    0.22,
+    1 - edgeCompression * edgeAmount * 0.4 * (1 + sideDepth * 0.1),
+    0.5,
     1,
+    1,
+  );
+  const tangentScale = clamp(
+    1 + (1 - compression) * input.surface.volumePreservation * 0.32,
+    1,
+    1.12,
     1,
   );
   const depthScale = clamp(
-    1 - depth * edgeAmount * (0.06 + Math.max(0, input.side * gazeX) * 0.07),
-    0.78,
+    1 - depth * edgeAmount * (0.045 + Math.max(0, input.side * gazeX) * 0.055),
+    0.82,
     1,
     1,
   );
@@ -202,7 +228,7 @@ export function projectEyeOnSurface(input: ProjectEyeInput): ProjectedEye {
     width:
       clamp(input.geometry.width, 2, 120, 24) *
       eyeScale *
-      (1 - (1 - yawDepth) * depth * 0.32),
+      (1 - (1 - yawDepth) * depth * 0.2),
     height: clamp(input.geometry.height, 2, 120, 44) * eyeScale,
     rotation:
       clamp(input.geometry.rotation, -180, 180, 0) +
@@ -217,6 +243,7 @@ export function projectEyeOnSurface(input: ProjectEyeInput): ProjectedEye {
       radialAxis,
       compression,
       depthScale,
+      tangentScale,
     ),
   );
   const curve = clamp(input.geometry.curve, 0, 1, 0.78);
@@ -226,6 +253,7 @@ export function projectEyeOnSurface(input: ProjectEyeInput): ProjectedEye {
     center: targetCenter,
     compression: round(compression),
     depthScale: round(depthScale),
+    tangentScale: round(tangentScale),
     radialAxis,
     turn: round(resolvedTurn),
   };

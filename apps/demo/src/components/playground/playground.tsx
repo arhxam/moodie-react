@@ -93,6 +93,7 @@ export function Playground() {
                 bodyFollow: config.bodyFollow,
                 inertia: config.surfaceInertia,
                 maxTurn: config.maxTurn,
+                volumePreservation: config.surfaceVolumePreservation,
               }}
               eyeMotion={{
                 enabled: config.eyeMotion,

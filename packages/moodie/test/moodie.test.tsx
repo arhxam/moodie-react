@@ -300,6 +300,7 @@ describe("Moodie", () => {
             edgeCompression: 0.9,
             depth: 0.8,
             inertia: 0.55,
+            volumePreservation: 0.7,
           }}
           eyeMotion={false}
           blink={false}
@@ -319,6 +320,7 @@ describe("Moodie", () => {
     expect(face).toHaveAttribute("data-surface-enabled", "true");
     expect(face).toHaveAttribute("data-surface-edge-compression", "0.9");
     expect(face).toHaveAttribute("data-surface-inertia", "0.55");
+    expect(face).toHaveAttribute("data-surface-volume-preservation", "0.7");
     expect(
       Number(face.getAttribute("data-left-eye-compression")),
     ).toBeGreaterThan(Number(face.getAttribute("data-right-eye-compression")));

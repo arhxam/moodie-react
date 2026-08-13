@@ -219,6 +219,7 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         typeof surface === "boolean" ? undefined : surface.bodyFollow,
         typeof surface === "boolean" ? undefined : surface.inertia,
         typeof surface === "boolean" ? undefined : surface.maxTurn,
+        typeof surface === "boolean" ? undefined : surface.volumePreservation,
       ],
     );
     const eyeMotionConfig = useMemo(
@@ -301,10 +302,10 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
           : {
               type: "spring" as const,
               stiffness:
-                springConfig.stiffness * (1.12 - surfaceConfig.inertia * 0.12),
+                springConfig.stiffness * (1.06 - surfaceConfig.inertia * 0.06),
               damping:
-                springConfig.damping * (0.92 + surfaceConfig.inertia * 0.08),
-              mass: springConfig.mass * (0.72 + surfaceConfig.inertia * 0.28),
+                springConfig.damping * (1.08 + surfaceConfig.inertia * 0.08),
+              mass: springConfig.mass * (0.68 + surfaceConfig.inertia * 0.2),
             };
     const bodyTransition =
       shouldReduceMotion || motionPreset === "none"
@@ -317,10 +318,10 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
           : {
               type: "spring" as const,
               stiffness:
-                springConfig.stiffness * (0.9 - surfaceConfig.inertia * 0.18),
+                springConfig.stiffness * (0.82 - surfaceConfig.inertia * 0.12),
               damping:
-                springConfig.damping * (1 + surfaceConfig.inertia * 0.15),
-              mass: springConfig.mass * (1 + surfaceConfig.inertia * 0.8),
+                springConfig.damping * (1.12 + surfaceConfig.inertia * 0.18),
+              mass: springConfig.mass * (1.08 + surfaceConfig.inertia * 0.72),
             };
 
     const definition = resolveExpression(currentExpression, expressions);
@@ -762,6 +763,9 @@ export const Moodie = forwardRef<MoodieHandle, MoodieProps>(
         data-surface-body-follow={String(surfaceConfig.bodyFollow)}
         data-surface-inertia={String(surfaceConfig.inertia)}
         data-surface-max-turn={String(surfaceConfig.maxTurn)}
+        data-surface-volume-preservation={String(
+          surfaceConfig.volumePreservation,
+        )}
         data-left-eye-compression={String(leftProjection.compression)}
         data-right-eye-compression={String(rightProjection.compression)}
         data-left-eye-depth={String(leftProjection.depthScale)}

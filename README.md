@@ -86,7 +86,7 @@ The demo opens at `http://localhost:5173` by default.
     duration: 620,
     anticipation: 0.35,
     overshoot: 0.25,
-    stagger: 35,
+    stagger: 22,
   }}
   pointer={{
     enabled: true,
@@ -103,6 +103,7 @@ The demo opens at `http://localhost:5173` by default.
     bodyFollow: 0.28,
     inertia: 0.4,
     maxTurn: 42,
+    volumePreservation: 0.45,
   }}
   eyeMotion={{
     idle: true,
@@ -124,7 +125,7 @@ See the [package README](packages/moodie/README.md) for the complete API and cus
 
 ## Status
 
-Moodie is at `0.3.0`. The public API is typed and tested, but minor releases may refine names before `1.0`.
+Moodie is at `0.3.1`. The public API is typed and tested, but minor releases may refine names before `1.0`.
 
 The full source is available on the default branch, and installable package archives are attached to [GitHub Releases](https://github.com/arhxam/moodie-react/releases).
 
