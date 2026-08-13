@@ -416,6 +416,9 @@ a {
 }
 .studio-sidebar {
   min-width: 0;
+  max-height: 920px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   grid-template-rows: auto 1fr;
   background: #fff;
@@ -815,6 +818,9 @@ a {
     border-right: 0;
   }
   .studio-sidebar {
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
     border-top: 1px solid var(--border);
   }
   .face-stage {
