@@ -365,7 +365,12 @@ describe("Moodie", () => {
 
     const face = screen.getByRole("img");
     expect(face).toHaveAttribute("data-expression-motion", "true");
-    expect(face.querySelector("[data-part='expression-cue']")).not.toBeNull();
+    expect(
+      face.querySelector("[data-part='left-expression-cue']"),
+    ).not.toBeNull();
+    expect(
+      face.querySelector("[data-part='right-expression-cue']"),
+    ).not.toBeNull();
   });
 
   it("allows automatic expression performances to be disabled", () => {

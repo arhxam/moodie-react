@@ -30,6 +30,7 @@ export type ExpressionCue = {
   scaleY: number[];
   transition: {
     duration: number;
+    delay: number;
     times: number[];
     ease: readonly [number, number, number, number];
   };
@@ -111,6 +112,7 @@ const overshoot = (
 export function createExpressionCue(
   performance: ExpressionPerformance | undefined,
   config: ExpressionMotionConfig,
+  delay = 0,
 ): ExpressionCue {
   const intensity = config.intensity;
   const x = (performance?.x ?? 0) * intensity;
@@ -157,6 +159,7 @@ export function createExpressionCue(
     ],
     transition: {
       duration: config.duration / 1000,
+      delay: clamp(delay, 0, 120, 0) / 1000,
       times: [0, 0.12, 0.42, 0.72, 1],
       ease: [0.22, 1, 0.36, 1],
     },
@@ -171,6 +174,7 @@ export function createReactionCue(
   const intensity = config.intensity;
   const transition = {
     duration: config.duration / 1000,
+    delay: 0,
     times: [0, 0.22, 0.58, 0.82, 1],
     ease: [0.22, 1, 0.36, 1] as const,
   };
