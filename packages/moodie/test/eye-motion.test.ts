@@ -95,10 +95,19 @@ describe("eye animation cues", () => {
   it("supports full disappearance and dimensional travel", () => {
     const vanish = createEyeAnimationCue("vanish", 1);
     const orbit = createEyeAnimationCue("orbit", 1);
+    const hiddenFrames = vanish.opacity
+      .map((opacity, index) => (opacity === 0 ? index : -1))
+      .filter((index) => index >= 0);
 
     expect(vanish.opacity).toContain(0);
     expect(vanish.scaleX).toContain(0);
     expect(vanish.scaleY).toContain(0);
+    expect(hiddenFrames).toHaveLength(2);
+    expect(
+      vanish.transition.times[hiddenFrames[1]] -
+        vanish.transition.times[hiddenFrames[0]],
+    ).toBeGreaterThanOrEqual(0.25);
+    expect(vanish.transition.duration).toBeGreaterThanOrEqual(1);
     expect(
       Math.min(...(orbit.x.filter(Number.isFinite) as number[])),
     ).toBeLessThan(0);

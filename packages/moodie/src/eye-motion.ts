@@ -95,8 +95,8 @@ const EYE_CUES: Record<EyeAnimationName, EyeCueDefinition> = {
     scaleY: [1, 1.05, 0.32, 0.04, 0, 0.22, 1.08, 1],
     rotate: [0, -1, 1, 0, 0, 0, -1, 0],
     opacity: [1, 1, 0.55, 0.08, 0, 0, 0.72, 1],
-    duration: 0.88,
-    times: [0, 0.12, 0.27, 0.39, 0.55, 0.67, 0.84, 1],
+    duration: 1.02,
+    times: [0, 0.1, 0.22, 0.34, 0.44, 0.72, 0.88, 1],
   },
   orbit: {
     x: [0, -5, -7, 0, 7, 5, 0],

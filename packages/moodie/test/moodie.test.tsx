@@ -253,7 +253,7 @@ describe("Moodie", () => {
       "vanish",
     );
 
-    act(() => vi.advanceTimersByTime(580));
+    act(() => vi.advanceTimersByTime(730));
     expect(screen.getByRole("img")).toHaveAttribute(
       "data-eye-animation",
       "none",
