@@ -135,14 +135,28 @@ export const MOTION_PRESETS = [
   "none",
 ] as const;
 export const POINTER_TARGETS = ["parent", "self"] as const;
-export const EYE_ANIMATIONS = [
+export const EYE_PERFORMANCES = [
   "notice",
   "glance",
   "squint",
   "wide",
   "flutter",
-  "none",
-] as const;
+  "roll",
+  "vanish",
+  "orbit",
+  "doubleTake",
+  "recoil",
+  "droop",
+  "shake",
+] as const satisfies readonly EyeAnimationName[];
+export const EYE_ANIMATIONS = [...EYE_PERFORMANCES, "none"] as const;
+export const EXPRESSION_EYE_TRIGGERS = {
+  cheeky: "roll",
+  dizzy: "orbit",
+  surprised: "recoil",
+  sleepy: "droop",
+  alert: "doubleTake",
+} as const satisfies Readonly<Record<string, EyeAnimationName | "none">>;
 export const HOVER_REACTIONS = [
   "tilt",
   "bounce",
@@ -152,6 +166,9 @@ export const HOVER_REACTIONS = [
 ] as const;
 
 const formatNumber = (value: number) => Number(value.toFixed(2));
+const formattedExpressionTriggers = Object.entries(EXPRESSION_EYE_TRIGGERS)
+  .map(([expression, cue]) => `${expression}: "${cue}"`)
+  .join(", ");
 
 export function createCode(config: PlaygroundConfig) {
   return `import { Moodie } from "@moodie/react";
@@ -169,7 +186,7 @@ export function StatusFace() {
       spring={{ stiffness: ${config.stiffness}, damping: ${config.damping}, mass: ${config.mass} }}
       pointer={{ enabled: ${config.pointer}, target: "${config.pointerTarget}", strength: ${formatNumber(config.pointerStrength)}, rangeX: ${formatNumber(config.pointerRangeX)}, rangeY: ${formatNumber(config.pointerRangeY)}, tilt: ${formatNumber(config.pointerTilt)} }}
       surface={{ enabled: ${config.surface}, perspective: ${formatNumber(config.surfacePerspective)}, edgeCompression: ${formatNumber(config.edgeCompression)}, depth: ${formatNumber(config.surfaceDepth)}, bodyFollow: ${formatNumber(config.bodyFollow)}, inertia: ${formatNumber(config.surfaceInertia)}, maxTurn: ${formatNumber(config.maxTurn)}, volumePreservation: ${formatNumber(config.surfaceVolumePreservation)} }}
-      eyeMotion={{ enabled: ${config.eyeMotion}, idle: ${config.idleEyeMotion}, hover: "${config.hoverEyeMotion}", hoverReaction: "${config.hoverReaction}", contextMenuBlink: ${config.contextMenuBlink}, intensity: ${formatNumber(config.eyeMotionIntensity)}, interval: [${config.eyeMotionIntervalMin}, ${config.eyeMotionIntervalMax}] }}
+      eyeMotion={{ enabled: ${config.eyeMotion}, idle: ${config.idleEyeMotion}, hover: "${config.hoverEyeMotion}", hoverReaction: "${config.hoverReaction}", contextMenuBlink: ${config.contextMenuBlink}, intensity: ${formatNumber(config.eyeMotionIntensity)}, interval: [${config.eyeMotionIntervalMin}, ${config.eyeMotionIntervalMax}], expressionTriggers: { ${formattedExpressionTriggers} } }}
       blink={${config.blink}}
       auto={${config.auto}}
       eyeScale={${formatNumber(config.eyeScale)}}
@@ -250,6 +267,7 @@ export function createJson(config: PlaygroundConfig) {
         contextMenuBlink,
         intensity: eyeMotionIntensity,
         interval: [eyeMotionIntervalMin, eyeMotionIntervalMax],
+        expressionTriggers: EXPRESSION_EYE_TRIGGERS,
       },
       blink: { enabled: blink },
       auto: { enabled: auto },

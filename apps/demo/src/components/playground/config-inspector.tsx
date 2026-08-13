@@ -1,4 +1,5 @@
-import { RotateCcwIcon, ShuffleIcon } from "lucide-react";
+import { PlayIcon, RotateCcwIcon, ShuffleIcon } from "lucide-react";
+import type { EyeAnimationName } from "@moodie/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import {
   BODY_SHAPES,
   DISPLAY_EXPRESSIONS,
   EYE_ANIMATIONS,
+  EYE_PERFORMANCES,
   HOVER_REACTIONS,
   MOTION_PRESETS,
   POINTER_TARGETS,
@@ -33,6 +35,9 @@ type InspectorProps = {
   ) => void;
   randomize: () => void;
   reset: () => void;
+  previewEyeAnimation: EyeAnimationName;
+  onPreviewEyeAnimationChange: (animation: EyeAnimationName) => void;
+  onPlayEyeAnimation: () => void;
 };
 
 export function ConfigInspector({
@@ -40,6 +45,9 @@ export function ConfigInspector({
   update,
   randomize,
   reset,
+  previewEyeAnimation,
+  onPreviewEyeAnimationChange,
+  onPlayEyeAnimation,
 }: InspectorProps) {
   return (
     <div className="inspector">
@@ -489,6 +497,38 @@ export function ConfigInspector({
             onCheckedChange={(value) => update("eyeMotion", value)}
             aria-label="Eye reactions"
           />
+        </ControlRow>
+        <ControlRow label="Performance cue" vertical>
+          <div className="flex w-full gap-2">
+            <Select
+              value={previewEyeAnimation}
+              onValueChange={(value) =>
+                onPreviewEyeAnimationChange(value as EyeAnimationName)
+              }
+            >
+              <SelectTrigger aria-label="Performance cue" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {EYE_PERFORMANCES.map((animation) => (
+                    <SelectItem key={animation} value={animation}>
+                      {animation}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPlayEyeAnimation}
+              aria-label={`Play ${previewEyeAnimation} eye performance`}
+            >
+              <PlayIcon data-icon="inline-start" />
+              Play
+            </Button>
+          </div>
         </ControlRow>
         <ControlRow label="Idle eye motion">
           <Switch
